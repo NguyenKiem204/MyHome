@@ -15,9 +15,20 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     <title>Zalo Mini App</title>
-    <link rel="stylesheet" href="./src/css/style.css">
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      #app {
+        height: 100vh;
+        overflow: hidden;
+      }
+    </style>
   </head>
-  <body  style="overflow-y: hidden;">
+  <body>
     <div id="app"></div>
     <!-- built script files will be auto injected -->
     <script type="module" src="./src/app.js"></script>

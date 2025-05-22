@@ -17,7 +17,7 @@ import BlogPage from "../../pages/BlogPage";
 import BlogDetailPage from "../../pages/BlogDetailPage";
 import ServicesPage from "../../pages/ServicesPage";
 import NotFoundPage from "../../pages/NotFoundPage";
-
+import "../../css/layout.css";
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
 
@@ -43,32 +43,9 @@ const Layout = () => {
       <SnackbarProvider>
         <ZMPRouter>
           <ErrorBoundary>
-            <Box
-              className="app-container"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "100vh",
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                overflow: "hidden",
-              }}
-            >
+            <Box className="app-layout">
               <Header />
-              <Box
-                className="content-container"
-                style={{
-                  flex: 1,
-                  overflowY: "auto",
-                  overflowX: "hidden",
-                  paddingTop: "56px", // Header height
-                  paddingBottom: "70px", // Navigation height
-                  WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
-                }}
-              >
+              <Box className="main-content">
                 <AnimationRoutes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/profile" element={<ProfilePage />} />

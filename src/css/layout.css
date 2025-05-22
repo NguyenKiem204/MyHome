@@ -1,0 +1,68 @@
+/* layout.css - Thêm vào src/css/layout.css */
+
+/* Reset toàn bộ overflow */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#app {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Layout chính */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Header cố định */
+.custom-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 56px;
+}
+
+/* Nội dung chính */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: 48px; /* Header height */
+  padding-bottom: 50px; /* Navigation height + buffer */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Navigation cố định */
+.zmp-bottom-navigation {
+  position: fixed !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 70px;
+}
+
+/* Custom scrollbar */
+.main-content::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Đảm bảo Page component không tạo scroll riêng */
+.zmp-page {
+  overflow: visible !important;
+  height: auto !important;
+}

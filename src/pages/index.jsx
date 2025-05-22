@@ -61,7 +61,7 @@ const HomePage = () => {
   ];
 
   return (
-    <Page className="home-page">
+    <div className="home-page">
       <Box className="welcome-section">
         <Text className="welcome-title">
           Xin chào, {userName}!
@@ -141,7 +141,7 @@ const HomePage = () => {
           </Button>
         </Box>
       </Sheet>
-    </Page>
+    </div>
   );
 };
 
