@@ -1,107 +1,192 @@
 /* src/css/feedback.css */
+
+/* Base styles */
 .feedback-page {
   background-color: #f5f5f5;
-  min-height: 100vh;
+  margin-top: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.feedback-tabs {
-  background-color: white;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+/* Zalo's primary color */
+:root {
+  --zalo-primary: #0068ff;
+  --zalo-primary-hover: #0055d4;
+  --zalo-text-primary: #1a1a1a;
+  --zalo-text-secondary: #666;
+  --zalo-border: #e6e6e6;
+  --zalo-bg-hover: #f2f2f2;
 }
 
+/* Tabs styling - Zalo style */
+.feedback-tabs .zaui-tabs-nav {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--zalo-border);
+  padding: 0 16px;
+}
+
+.feedback-tabs .zaui-tabs-nav-item {
+  padding: 12px 0;
+  margin-right: 24px;
+  font-weight: 500;
+  color: var(--zalo-text-secondary);
+  position: relative;
+}
+
+.feedback-tabs .zaui-tabs-nav-item-active {
+  color: var(--zalo-primary);
+}
+
+.feedback-tabs .zaui-tabs-nav-item-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--zalo-primary);
+}
+
+/* Form styling - Zalo style */
 .feedback-form {
   padding: 16px;
+  background-color: #ffffff;
+  margin: 8px;
+  border-radius: 8px;
 }
 
 .form-title {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 20px;
-  color: #1F2937;
+  color: var(--zalo-text-primary);
+  margin-bottom: 16px;
+  display: block;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .form-label {
-  font-size: 15px;
+  display: block;
+  font-size: 14px;
   font-weight: 500;
+  color: var(--zalo-text-primary);
   margin-bottom: 8px;
-  color: #374151;
 }
 
+/* Input fields - Zalo style */
+.zaui-input, .zaui-textarea {
+  border: 1px solid var(--zalo-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background-color: #ffffff;
+}
+
+.zaui-input:focus, .zaui-textarea:focus {
+  border-color: var(--zalo-primary);
+  box-shadow: 0 0 0 1px var(--zalo-primary);
+}
+
+/* Radio buttons - Zalo style */
 .radio-options {
   display: flex;
   gap: 16px;
+  margin-top: 8px;
 }
 
-/* Custom styling for textarea */
-.zmp-input-textarea {
-  min-height: 120px;
-  border-radius: 8px;
-  border: 1px solid #D1D5DB;
-  padding: 12px;
-  font-size: 15px;
+.zaui-radio {
+  accent-color: var(--zalo-primary);
 }
 
+/* Attachments - Zalo style */
 .attachments-container {
-  border: 1px dashed #D1D5DB;
-  border-radius: 8px;
-  padding: 12px;
-  background-color: #F9FAFB;
+  margin-top: 8px;
 }
 
 .attachment-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 8px 12px;
-  background-color: white;
-  border-radius: 6px;
+  background-color: #fafafa;
+  border-radius: 4px;
   margin-bottom: 8px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--zalo-border);
 }
 
 .attachment-info {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1;
 }
 
 .attachment-name {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  color: var(--zalo-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
 }
 
 .attachment-size {
   font-size: 12px;
-  color: #6B7280;
+  color: var(--zalo-text-secondary);
+  margin-left: auto;
 }
 
 .remove-attachment-btn {
-  color: #EF4444;
+  color: var(--zalo-text-secondary);
   padding: 4px;
 }
 
+/* Cập nhật phần add-attachment-btn trong file feedback.css */
+
 .add-attachment-btn {
+  margin-top: 8px;
+  border: 1px dashed var(--zalo-border);
+  background-color: transparent;
+  color: var(--zalo-primary);
+  font-size: 14px;
   width: 100%;
-  margin-top: 12px;
-  background-color: white;
-  border: 1px solid #D1D5DB;
-  color: #4F46E5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+.add-attachment-btn .zaui-btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
+.add-attachment-btn:hover {
+  background-color: rgba(0, 104, 255, 0.05);
+}
+
+/* Submit button - Zalo style */
 .submit-btn {
-  background-color: #4F46E5;
-  margin-top: 24px;
+  background-color: var(--zalo-primary);
+  color: white;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 16px;
+  border: none;
 }
 
-/* Feedback History Tab */
+.submit-btn:disabled {
+  background-color: #ccc;
+  color: #999;
+}
+
+/* History tab - Zalo style */
 .feedback-history {
-  padding: 16px 0;
+  padding: 8px;
 }
 
 .feedback-history-item-title {
@@ -112,33 +197,77 @@
 }
 
 .feedback-history-item-desc {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   font-size: 13px;
-  color: #6B7280;
+  color: var(--zalo-text-secondary);
+  margin-top: 4px;
+}
+
+.zaui-list-item {
+  padding: 12px 16px;
+  border-radius: 0;
+  margin-bottom: 0;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--zalo-border);
+}
+
+.zaui-list-item:hover {
+  background-color: var(--zalo-bg-hover);
 }
 
 .empty-history {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 64px 16px;
   text-align: center;
-  color: #6B7280;
+  padding: 40px 16px;
+  color: var(--zalo-text-secondary);
 }
 
-/* Success Sheet */
+/* Success sheet - Zalo style */
 .success-sheet {
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 24px;
   text-align: center;
+  background-color: #fff;
+  border-radius: 8px 8px 0 0;
 }
 
 .success-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  margin-bottom: 16px;
+  color: var(--zalo-primary);
+}
+
+.success-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--zalo-text-primary);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.success-message {
+  font-size: 14px;
+  color: var(--zalo-text-secondary);
+  margin-bottom: 24px;
+  display: block;
+  line-height: 1.5;
+}
+
+.success-btn {
+  background-color: var(--zalo-primary);
+  color: white;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 12px;
+  border: none;
+}
+
+.success-btn:active {
+  background-color: var(--zalo-primary-hover);
+}
+
+/* Zalo specific adjustments */
+.zaui-sheet-container {
+  border-radius: 8px 8px 0 0;
+}
+
+/* Remove default ZMP shadows to match Zalo style */
+.zaui-list-item, .feedback-form {
+  box-shadow: none;
 }

@@ -1,11 +1,11 @@
 // src/pages/ServicesPage.jsx
 import React, { useState, useEffect } from "react";
 import { Box, Page, Text, Button, Tabs, Icon, Modal, Switch, Sheet } from "zmp-ui";
-import { 
-  Bell, Shield, Cloud, CreditCard, Zap, Check, X, 
+import {
+  Bell, Shield, Cloud, CreditCard, Zap, Check, X,
   CheckCircle, AlertTriangle, Info, Coffee, Globe, Users, BookOpen
 } from "lucide-react";
-// import "../css/services.css";
+import "../css/services.css";
 
 const ServicesPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -166,7 +166,7 @@ const ServicesPage = () => {
 
   const handleRegisterService = (service) => {
     setCurrentService(service);
-    
+
     if (service.price === "Miễn phí") {
       handleConfirmRegister();
     } else {
@@ -188,7 +188,7 @@ const ServicesPage = () => {
           : service
       )
     );
-    
+
     setShowConfirmation(false);
     setShowSuccess(true);
   };
@@ -207,8 +207,8 @@ const ServicesPage = () => {
 
   return (
     <Page className="services-page">
-      <Tabs 
-        activeKey={activeTab} 
+      <Tabs
+        activeKey={activeTab}
         onChange={setActiveTab}
         className="services-tabs"
       >
@@ -217,7 +217,7 @@ const ServicesPage = () => {
         <Tabs.Tab key="free" label="Miễn phí" />
         <Tabs.Tab key="premium" label="Premium" />
       </Tabs>
-      
+
       <Box className="services-list">
         {loading ? (
           Array(4).fill().map((_, index) => (
@@ -231,13 +231,13 @@ const ServicesPage = () => {
           ))
         ) : filteredServices.length > 0 ? (
           filteredServices.map((service) => (
-            <Box 
-              key={service.id} 
+            <Box
+              key={service.id}
               className="service-card"
               onClick={() => openServiceDetail(service)}
             >
-              <Box 
-                className="service-icon" 
+              <Box
+                className="service-icon"
                 style={{ backgroundColor: service.color }}
               >
                 {service.icon}
@@ -262,7 +262,7 @@ const ServicesPage = () => {
                         handleCancelService(service);
                       }}
                     >
-                      <Check size={16} /> Đã đăng ký
+                      Đã đăng ký
                     </Button>
                   ) : (
                     <Button
@@ -286,7 +286,7 @@ const ServicesPage = () => {
           </Box>
         )}
       </Box>
-      
+
       {/* Modal chi tiết tiện ích */}
       <Sheet
         visible={showServiceDetail}
@@ -298,7 +298,7 @@ const ServicesPage = () => {
       >
         {currentService && (
           <Box className="service-detail">
-            <Box 
+            <Box
               className="service-detail-header"
               style={{ backgroundColor: currentService.color }}
             >
@@ -308,12 +308,12 @@ const ServicesPage = () => {
               <Text className="service-detail-name">{currentService.name}</Text>
               <Text className="service-detail-price">{currentService.price}</Text>
             </Box>
-            
+
             <Box className="service-detail-content">
               <Text className="service-detail-description">
                 {currentService.description}
               </Text>
-              
+
               <Box className="service-features">
                 <Text className="feature-title">Tính năng chính</Text>
                 <Box className="feature-list">
@@ -325,7 +325,7 @@ const ServicesPage = () => {
                   ))}
                 </Box>
               </Box>
-              
+
               <Box className="service-detail-footer">
                 {currentService.isRegistered ? (
                   <Button
@@ -348,7 +348,7 @@ const ServicesPage = () => {
           </Box>
         )}
       </Sheet>
-      
+
       {/* Modal xác nhận */}
       <Modal
         visible={showConfirmation}
@@ -388,7 +388,7 @@ const ServicesPage = () => {
           </Box>
         )}
       </Modal>
-      
+
       {/* Sheet thông báo thành công */}
       <Sheet
         visible={showSuccess}
@@ -400,7 +400,7 @@ const ServicesPage = () => {
       >
         {currentService && (
           <Box className="success-sheet">
-            <Box 
+            <Box
               className="success-icon"
               style={{ backgroundColor: currentService.color }}
             >
@@ -414,7 +414,7 @@ const ServicesPage = () => {
                 ? `Bạn đã đăng ký thành công tiện ích "${currentService.name}". Bạn có thể sử dụng ngay bây giờ.`
                 : `Bạn đã hủy đăng ký tiện ích "${currentService.name}". Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.`}
             </Text>
-            <Button 
+            <Button
               className="success-btn"
               fullWidth
               style={{ backgroundColor: currentService.color }}

@@ -4,6 +4,7 @@ import { Box, Page, Text, Input, Tabs } from "zmp-ui";
 import { Search, Bookmark, Clock, ThumbsUp } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import "../css/blog.css";
 
 const BlogPage = () => {
   const [activeTab, setActiveTab] = useState("all");

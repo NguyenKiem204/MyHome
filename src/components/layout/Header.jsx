@@ -14,7 +14,12 @@ const Header = () => {
       showBackIcon={!isHomePage}
       leftIcon={!isHomePage && <ChevronLeft size={24} />}
       onBackClick={() => navigate(-1)}
-      
+     style={{
+    height: "65px",
+    minHeight: "60px",
+    padding: "10px",
+    alignItems: "end",
+  }}
     >
       <Box className="header-actions">
         <Box 

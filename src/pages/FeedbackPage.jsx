@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Box, Page, Text, Input, Button, Radio, Tabs, List, Icon, Sheet } from "zmp-ui";
 import { Send, Camera, X, CheckCircle, Clock, AlertCircle } from "lucide-react";
-// import "../css/feedback.css";
+import "../css/feedback.css";
 
 const FeedbackPage = () => {
   const [activeTab, setActiveTab] = useState("new");
@@ -35,13 +35,13 @@ const FeedbackPage = () => {
       feedbackType,
       attachments,
     });
-    
+
     // Reset form
     setSubject("");
     setContent("");
     setFeedbackType("suggestion");
     setAttachments([]);
-    
+
     // Hiển thị thông báo thành công
     setShowSuccessSheet(true);
   };
@@ -83,15 +83,15 @@ const FeedbackPage = () => {
 
   return (
     <Page className="feedback-page">
-      <Tabs 
-        activeKey={activeTab} 
+      <Tabs
+        activeKey={activeTab}
         onChange={setActiveTab}
         className="feedback-tabs"
       >
         <Tabs.Tab key="new" label="Gửi phản ánh">
           <Box className="feedback-form">
             <Text className="form-title">Gửi phản ánh của bạn</Text>
-            
+
             <Box className="form-group">
               <Text className="form-label">Loại phản ánh</Text>
               <Radio.Group
@@ -105,7 +105,7 @@ const FeedbackPage = () => {
                 </Box>
               </Radio.Group>
             </Box>
-            
+
             <Box className="form-group">
               <Text className="form-label">Tiêu đề</Text>
               <Input
@@ -114,7 +114,7 @@ const FeedbackPage = () => {
                 onChange={(e) => setSubject(e.target.value)}
               />
             </Box>
-            
+
             <Box className="form-group">
               <Text className="form-label">Nội dung</Text>
               <Input.TextArea
@@ -124,7 +124,7 @@ const FeedbackPage = () => {
                 rows={5}
               />
             </Box>
-            
+
             <Box className="form-group">
               <Text className="form-label">Tệp đính kèm</Text>
               <Box className="attachments-container">
@@ -143,7 +143,7 @@ const FeedbackPage = () => {
                     />
                   </Box>
                 ))}
-                
+
                 <Button
                   className="add-attachment-btn"
                   variant="secondary"
@@ -154,7 +154,7 @@ const FeedbackPage = () => {
                 </Button>
               </Box>
             </Box>
-            
+
             <Button
               className="submit-btn"
               fullWidth
@@ -166,7 +166,7 @@ const FeedbackPage = () => {
             </Button>
           </Box>
         </Tabs.Tab>
-        
+
         <Tabs.Tab key="history" label="Lịch sử phản ánh">
           <Box className="feedback-history">
             {feedbackHistory.length > 0 ? (
@@ -184,14 +184,14 @@ const FeedbackPage = () => {
                       <Box className="feedback-history-item-desc">
                         <Text>
                           {item.date} - {" "}
-                          <Text 
-                            style={{ 
-                              color: item.status === "completed" ? "#10B981" : 
-                                    item.status === "processing" ? "#F59E0B" : "#6B7280" 
+                          <Text
+                            style={{
+                              color: item.status === "completed" ? "#10B981" :
+                                item.status === "processing" ? "#F59E0B" : "#6B7280"
                             }}
                           >
-                            {item.status === "completed" ? "Đã xử lý" : 
-                             item.status === "processing" ? "Đang xử lý" : "Chờ xử lý"}
+                            {item.status === "completed" ? "Đã xử lý" :
+                              item.status === "processing" ? "Đang xử lý" : "Chờ xử lý"}
                           </Text>
                         </Text>
                       </Box>
@@ -226,7 +226,7 @@ const FeedbackPage = () => {
           <Text className="success-message">
             Cảm ơn bạn đã gửi phản ánh. Chúng tôi sẽ xem xét và phản hồi sớm nhất có thể.
           </Text>
-          <Button 
+          <Button
             className="success-btn"
             fullWidth
             onClick={() => {
