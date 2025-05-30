@@ -50,8 +50,8 @@ const Layout = () => {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/feedback" element={<FeedbackPage />} />
+                  <Route path="/blog-detail/:id" element={<BlogDetailPage />} />
                   <Route path="/blogs" element={<BlogPage />} />
-                  <Route path="/blogs/:id" element={<BlogDetailPage />} />
                   <Route path="/services" element={<ServicesPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </AnimationRoutes>

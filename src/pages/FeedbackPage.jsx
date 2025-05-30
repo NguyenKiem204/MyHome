@@ -217,6 +217,7 @@ const FeedbackPage = () => {
         mask
         handler
         swipeToClose
+        style={{marginBottom:"50px"}}
       >
         <Box className="success-sheet">
           <Box className="success-icon">

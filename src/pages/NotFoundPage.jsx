@@ -2,7 +2,7 @@
 import React from "react";
 import { Box, Page, Text, Button } from "zmp-ui";
 import { AlertOctagon, Home } from "lucide-react";
-// import "../css/not-found.css";
+import "../css/not-found.css";
 
 const NotFoundPage = () => {
   return (

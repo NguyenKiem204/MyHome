@@ -1,7 +1,7 @@
 // src/pages/BlogPage.jsx
 import React, { useState, useEffect } from "react";
 import { Box, Page, Text, Input, Tabs } from "zmp-ui";
-import { Search, Bookmark, Clock, ThumbsUp } from "lucide-react";
+import { Search, Bookmark, Clock, ThumbsUp, User, Calendar } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "../css/blog.css";
@@ -11,81 +11,145 @@ const BlogPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [blogs, setBlogs] = useState([]);
+  const [error, setError] = useState(null);
 
-  const sampleBlogs = [
-    {
-      id: 1,
-      title: "Hướng dẫn sử dụng tính năng mới trong ứng dụng",
-      summary: "Tìm hiểu về các tính năng mới và cách sử dụng chúng một cách hiệu quả trong phiên bản cập nhật gần đây.",
-      coverImage: "https://via.placeholder.com/300x200",
-      category: "guide",
-      author: "Admin",
-      publishDate: "20/05/2025",
-      readingTime: "5 phút",
-      likes: 124,
-      comments: 23,
-      bookmarked: false,
-    },
-    {
-      id: 2,
-      title: "5 mẹo để tối ưu hóa trải nghiệm người dùng",
-      summary: "Khám phá những cách đơn giản để nâng cao trải nghiệm và tận dụng tối đa khả năng của ứng dụng.",
-      coverImage: "https://via.placeholder.com/300x200",
-      category: "tips",
-      author: "Chuyên gia UX",
-      publishDate: "15/05/2025",
-      readingTime: "8 phút",
-      likes: 245,
-      comments: 42,
-      bookmarked: true,
-    },
-    {
-      id: 3,
-      title: "Cập nhật chính sách bảo mật - Những điều cần biết",
-      summary: "Thông tin quan trọng về những thay đổi trong chính sách bảo mật và ảnh hưởng đến người dùng.",
-      coverImage: "https://via.placeholder.com/300x200",
-      category: "news",
-      author: "Ban Quản Trị",
-      publishDate: "10/05/2025",
-      readingTime: "3 phút",
-      likes: 98,
-      comments: 15,
-      bookmarked: false,
-    },
-    {
-      id: 4,
-      title: "Tương lai của công nghệ Z - Xu hướng và dự đoán",
-      summary: "Phân tích các xu hướng công nghệ mới nhất và dự đoán về sự phát triển trong tương lai gần.",
-      coverImage: "https://via.placeholder.com/300x200",
-      category: "tech",
-      author: "Chuyên gia Công nghệ",
-      publishDate: "05/05/2025",
-      readingTime: "10 phút",
-      likes: 312,
-      comments: 67,
-      bookmarked: false,
-    },
-    {
-      id: 5,
-      title: "Cách xử lý các vấn đề thường gặp khi sử dụng ứng dụng",
-      summary: "Hướng dẫn chi tiết giúp bạn khắc phục các lỗi và vấn đề thường gặp một cách nhanh chóng.",
-      coverImage: "https://via.placeholder.com/300x200",
-      category: "guide",
-      author: "Đội hỗ trợ",
-      publishDate: "01/05/2025",
-      readingTime: "7 phút",
-      likes: 178,
-      comments: 34,
-      bookmarked: true,
-    },
-  ];
+  const API_KEY = "474cc9de345a4e1ca713aaf4f1be01e5";
+  const BASE_URL = "https://newsapi.org/v2/everything";
+
+  const categoryEndpoints = {
+    all: { endpoint: "everything", query: "technology OR business OR science" },
+    tech: { endpoint: "everything", query: "technology OR AI OR software OR programming" },
+    business: { endpoint: "top-headlines", category: "business" },
+    science: { endpoint: "top-headlines", category: "science" },
+    news: { endpoint: "top-headlines", category: "general" }
+  };
+
+  const techDomains = "techcrunch.com,theverge.com,wired.com,arstechnica.com,engadget.com";
+
+  const fetchNewsData = async (category = "all", query = "") => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      let url;
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 7);
+      
+      const formatDate = (date) => date.toISOString().split('T')[0];
+
+      if (query) {
+        // Nếu user search, dùng everything endpoint
+        url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&from=${formatDate(yesterday)}&to=${formatDate(today)}&sortBy=popularity&language=en&pageSize=20&apiKey=${API_KEY}`;
+      } else {
+        // Dùng strategy khác nhau cho từng category
+        switch(category) {
+          case "tech":
+            url = `https://newsapi.org/v2/everything?q=technology OR programming OR AI OR software&domains=${techDomains}&from=${formatDate(yesterday)}&to=${formatDate(today)}&sortBy=popularity&language=en&pageSize=20&apiKey=${API_KEY}`;
+            break;
+          case "business":
+            url = `https://newsapi.org/v2/top-headlines?category=business&country=us&pageSize=20&apiKey=${API_KEY}`;
+            break;
+          case "science":
+            url = `https://newsapi.org/v2/top-headlines?category=science&country=us&pageSize=20&apiKey=${API_KEY}`;
+            break;
+          case "news":
+            url = `https://newsapi.org/v2/top-headlines?category=general&country=us&pageSize=20&apiKey=${API_KEY}`;
+            break;
+          default: // "all"
+            url = `https://newsapi.org/v2/everything?q=technology OR business OR science&from=${formatDate(yesterday)}&to=${formatDate(today)}&sortBy=popularity&language=en&pageSize=20&apiKey=${API_KEY}`;
+        }
+      }
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.status !== "ok") {
+        throw new Error(data.message || "Failed to fetch news");
+      }
+
+      // Transform API data để phù hợp với component structure
+      const transformedBlogs = data.articles
+        .filter(article => article.title && article.description && article.urlToImage)
+        .map((article, index) => ({
+          id: index + 1,
+          title: article.title,
+          summary: article.description,
+          coverImage: article.urlToImage,
+          category: getCategoryFromContent(article.title + " " + article.description, article.source.name),
+          author: article.author || article.source.name || "Unknown",
+          publishDate: new Date(article.publishedAt).toLocaleDateString('vi-VN'),
+          readingTime: estimateReadingTime(article.description),
+          likes: Math.floor(Math.random() * 500) + 50, // Random likes for demo
+          comments: Math.floor(Math.random() * 100) + 5, // Random comments for demo
+          bookmarked: false,
+          url: article.url,
+          source: article.source.name
+        }));
+
+      setBlogs(transformedBlogs);
+    } catch (err) {
+      console.error("Error fetching news:", err);
+      setError(err.message);
+      setBlogs([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const estimateReadingTime = (text) => {
+    const wordsPerMinute = 200;
+    const wordCount = text.split(' ').length;
+    const minutes = Math.ceil(wordCount / wordsPerMinute);
+    return `${minutes} phút`;
+  };
+
+  const getCategoryFromContent = (content, source) => {
+    const lowerContent = content.toLowerCase();
+    const lowerSource = source.toLowerCase();
+    
+    const techSources = ['techcrunch', 'the verge', 'wired', 'ars technica', 'engadget', 'tech'];
+    if (techSources.some(tech => lowerSource.includes(tech)) || 
+        lowerContent.includes('technology') || lowerContent.includes('tech') || 
+        lowerContent.includes('ai') || lowerContent.includes('software') || 
+        lowerContent.includes('programming')) {
+      return 'tech';
+    }
+    
+    if (lowerContent.includes('business') || lowerContent.includes('market') || 
+        lowerContent.includes('finance') || lowerContent.includes('economy') ||
+        lowerSource.includes('business')) {
+      return 'business';
+    }
+    
+    if (lowerContent.includes('science') || lowerContent.includes('research') || 
+        lowerContent.includes('study') || lowerContent.includes('discovery')) {
+      return 'science';
+    }
+    
+    return 'news';
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      setBlogs(sampleBlogs);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    fetchNewsData(activeTab, searchQuery);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery.trim()) {
+        fetchNewsData(activeTab, searchQuery);
+      } else {
+        fetchNewsData(activeTab);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const handleToggleBookmark = (blogId) => {
     setBlogs(
@@ -111,15 +175,12 @@ const BlogPage = () => {
     if (activeTab !== "all" && blog.category !== activeTab) {
       return false;
     }
-    if (
-      searchQuery &&
-      !blog.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !blog.summary.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return false;
-    }
     return true;
   });
+
+  const handleBlogClick = (blog) => {
+    window.open(blog.url, '_blank');
+  };
 
   const renderBlogItem = (blog, isLoading = false, key) => {
     if (isLoading) {
@@ -142,16 +203,16 @@ const BlogPage = () => {
       <Box 
         key={blog.id} 
         className="blog-item"
-        onClick={() => window.location.href = `/blogs/${blog.id}`}
+        onClick={() => handleBlogClick(blog)}
       >
         <Box 
           className="blog-cover"
           style={{ backgroundImage: `url(${blog.coverImage})` }}
         >
           <Box className={`blog-category ${blog.category}`}>
-            {blog.category === "guide" ? "Hướng dẫn" :
-             blog.category === "tips" ? "Mẹo hay" :
-             blog.category === "news" ? "Tin tức" : "Công nghệ"}
+            {blog.category === "tech" ? "Công nghệ" :
+             blog.category === "business" ? "Kinh doanh" :
+             blog.category === "science" ? "Khoa học" : "Tin tức"}
           </Box>
           <Box 
             className="blog-bookmark-btn"
@@ -190,9 +251,21 @@ const BlogPage = () => {
           </Box>
           
           <Box className="blog-info">
-            <Text className="blog-author">{blog.author}</Text>
-            <Text className="blog-date">{blog.publishDate}</Text>
+            <Box className="blog-author-info">
+              <User size={12} />
+              <Text className="blog-author">{blog.author}</Text>
+            </Box>
+            <Box className="blog-date-info">
+              <Calendar size={12} />
+              <Text className="blog-date">{blog.publishDate}</Text>
+            </Box>
           </Box>
+          
+          {blog.source && (
+            <Box className="blog-source">
+              <Text className="source-label">Nguồn: {blog.source}</Text>
+            </Box>
+          )}
         </Box>
       </Box>
     );
@@ -205,7 +278,7 @@ const BlogPage = () => {
           <Search size={20} className="search-icon" />
           <Input
             className="search-input"
-            placeholder="Tìm kiếm bài viết..."
+            placeholder="Tìm kiếm tin tức..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             clearable
@@ -214,19 +287,27 @@ const BlogPage = () => {
         
         <Tabs activeKey={activeTab} onChange={setActiveTab} className="blog-tabs">
           <Tabs.Tab key="all" label="Tất cả" />
-          <Tabs.Tab key="guide" label="Hướng dẫn" />
-          <Tabs.Tab key="tips" label="Mẹo hay" />
-          <Tabs.Tab key="news" label="Tin tức" />
           <Tabs.Tab key="tech" label="Công nghệ" />
+          <Tabs.Tab key="business" label="Kinh doanh" />
+          <Tabs.Tab key="science" label="Khoa học" />
+          <Tabs.Tab key="news" label="Tin tức" />
         </Tabs>
       </Box>
       
       <Box className="blog-list">
+        {error && (
+          <Box className="error-message">
+            <Text style={{ color: 'red', textAlign: 'center', padding: '20px' }}>
+              Lỗi khi tải tin tức: {error}
+            </Text>
+          </Box>
+        )}
+        
         {loading
-          ? Array.from({ length: 3 }, (_, index) => renderBlogItem(null, true, index))
+          ? Array.from({ length: 5 }, (_, index) => renderBlogItem(null, true, index))
           : filteredBlogs.length > 0
           ? filteredBlogs.map((blog) => renderBlogItem(blog))
-          : (
+          : !error && (
             <Box className="empty-blogs">
               <Text>Không tìm thấy bài viết nào phù hợp</Text>
             </Box>

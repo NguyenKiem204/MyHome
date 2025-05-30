@@ -1,9 +1,18 @@
 // src/pages/ProfilePage.jsx
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Box, Page, Text, Avatar, Button, List, Modal, Input } from "zmp-ui";
-import { 
-  User, Mail, Phone, MapPin, Calendar, Edit, LogOut, 
-  Camera, ChevronRight, Shield, CreditCard
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Edit,
+  LogOut,
+  Camera,
+  ChevronRight,
+  Shield,
+  CreditCard,
 } from "lucide-react";
 import "../css/profile.css";
 
@@ -19,7 +28,15 @@ const ProfilePage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editField, setEditField] = useState("");
   const [editValue, setEditValue] = useState("");
-
+  const [avatar, setAvatar] = useState();
+  useEffect(() => {
+    return () => avatar && URL.revokeObjectURL(avatar.preview);
+  }, [avatar]);
+  const handleImage = (e) => {
+    const file = e.target.files[0];
+    file.preview = URL.createObjectURL(file);
+    setAvatar(file);
+  };
   const handleEdit = (field, value) => {
     setEditField(field);
     setEditValue(value);
@@ -69,15 +86,24 @@ const ProfilePage = () => {
           <Avatar
             className="profile-avatar"
             size={100}
-            src="https://via.placeholder.com/100"
+            src={avatar?.preview || "https://via.placeholder.com/100"}
           />
           <Box className="avatar-edit-btn">
-            <Camera size={16} />
+            <label htmlFor="avatar-upload" style={{ cursor: "pointer" }}>
+              <Camera size={16} />
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => handleImage(e)}
+              />
+            </label>
           </Box>
         </Box>
         <Text className="profile-name">{profileData.name}</Text>
-        <Button 
-          variant="secondary" 
+        <Button
+          variant="secondary"
           className="edit-profile-btn"
           onClick={() => handleEdit("name", profileData.name)}
           suffixIcon={<Edit size={16} />}
@@ -88,12 +114,15 @@ const ProfilePage = () => {
 
       <Box className="profile-details">
         <Text className="section-title">Thông tin cá nhân</Text>
-        <List>
+        <List divider={false}>
           <List.Item
             title="Email"
             prefix={<Mail size={20} />}
             suffix={
-              <Box className="info-edit" onClick={() => handleEdit("email", profileData.email)}>
+              <Box
+                className="info-edit"
+                onClick={() => handleEdit("email", profileData.email)}
+              >
                 <Text>{profileData.email}</Text>
                 <Edit size={16} />
               </Box>
@@ -103,7 +132,10 @@ const ProfilePage = () => {
             title="Số điện thoại"
             prefix={<Phone size={20} />}
             suffix={
-              <Box className="info-edit" onClick={() => handleEdit("phone", profileData.phone)}>
+              <Box
+                className="info-edit"
+                onClick={() => handleEdit("phone", profileData.phone)}
+              >
                 <Text>{profileData.phone}</Text>
                 <Edit size={16} />
               </Box>
@@ -113,7 +145,10 @@ const ProfilePage = () => {
             title="Địa chỉ"
             prefix={<MapPin size={20} />}
             suffix={
-              <Box className="info-edit" onClick={() => handleEdit("address", profileData.address)}>
+              <Box
+                className="info-edit"
+                onClick={() => handleEdit("address", profileData.address)}
+              >
                 <Text>{profileData.address}</Text>
                 <Edit size={16} />
               </Box>
@@ -123,7 +158,10 @@ const ProfilePage = () => {
             title="Ngày sinh"
             prefix={<Calendar size={20} />}
             suffix={
-              <Box className="info-edit" onClick={() => handleEdit("birthdate", profileData.birthdate)}>
+              <Box
+                className="info-edit"
+                onClick={() => handleEdit("birthdate", profileData.birthdate)}
+              >
                 <Text>{profileData.birthdate}</Text>
                 <Edit size={16} />
               </Box>
@@ -134,14 +172,14 @@ const ProfilePage = () => {
 
       <Box className="profile-menu">
         <Text className="section-title">Cài đặt tài khoản</Text>
-        <List>
+        <List divider={false}>
           {profileMenuItems.map((item) => (
             <List.Item
               key={item.id}
               title={item.title}
               prefix={item.icon}
               suffix={item.id !== "logout" ? <ChevronRight size={16} /> : null}
-              onClick={() => window.location.href = item.path}
+              onClick={() => (window.location.href = item.path)}
               titleClassName={item.color ? { color: item.color } : {}}
             />
           ))}
@@ -151,17 +189,16 @@ const ProfilePage = () => {
       {/* Modal chỉnh sửa thông tin */}
       <Modal
         visible={showEditModal}
-        title={`Chỉnh sửa ${
-          editField === "name"
+        title={`Chỉnh sửa ${editField === "name"
             ? "tên"
             : editField === "email"
-            ? "email"
-            : editField === "phone"
-            ? "số điện thoại"
-            : editField === "address"
-            ? "địa chỉ"
-            : "ngày sinh"
-        }`}
+              ? "email"
+              : editField === "phone"
+                ? "số điện thoại"
+                : editField === "address"
+                  ? "địa chỉ"
+                  : "ngày sinh"
+          }`}
         onClose={() => setShowEditModal(false)}
         actions={[
           {
@@ -177,25 +214,24 @@ const ProfilePage = () => {
       >
         <Box className="edit-modal-content">
           <Input
-            label={`Nhập ${
-              editField === "name"
+            label={`Nhập ${editField === "name"
                 ? "tên"
                 : editField === "email"
-                ? "email"
-                : editField === "phone"
-                ? "số điện thoại"
-                : editField === "address"
-                ? "địa chỉ"
-                : "ngày sinh"
-            } mới`}
+                  ? "email"
+                  : editField === "phone"
+                    ? "số điện thoại"
+                    : editField === "address"
+                      ? "địa chỉ"
+                      : "ngày sinh"
+              } mới`}
             type={
               editField === "email"
                 ? "email"
                 : editField === "phone"
-                ? "tel"
-                : editField === "birthdate"
-                ? "date"
-                : "text"
+                  ? "tel"
+                  : editField === "birthdate"
+                    ? "date"
+                    : "text"
             }
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}

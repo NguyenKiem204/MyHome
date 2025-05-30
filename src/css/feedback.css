@@ -74,19 +74,6 @@
   margin-bottom: 8px;
 }
 
-/* Input fields - Zalo style */
-.zaui-input, .zaui-textarea {
-  border: 1px solid var(--zalo-border);
-  border-radius: 4px;
-  padding: 10px 12px;
-  font-size: 14px;
-  background-color: #ffffff;
-}
-
-.zaui-input:focus, .zaui-textarea:focus {
-  border-color: var(--zalo-primary);
-  box-shadow: 0 0 0 1px var(--zalo-primary);
-}
 
 /* Radio buttons - Zalo style */
 .radio-options {
