@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "MyHome",
+    "title": "MyHomeApp",
     "textColor": {
       "light": "black",
       "dark": "white"
@@ -9,10 +9,8 @@
     "actionBarHidden": true,
     "hideIOSSafeAreaBottom": true,
     "hideAndroidBottomNavigationBar": false
-    
   },
   "listCSS": [],
   "listSyncJS": [],
-  "listAsyncJS": [],
-  "scopes": ["scope.userInfo", "scope.userPhonenumber"]
+  "listAsyncJS": []
 }

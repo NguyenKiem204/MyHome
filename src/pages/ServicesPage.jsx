@@ -2,11 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { Box, Page, Text, Button, Tabs, Icon, Modal, Switch, Sheet } from "zmp-ui";
 import {
-  Car, ShoppingCart, Utensils, Wrench, Users, Shield, 
-  Check, X, CheckCircle, AlertTriangle, Info, Wifi, 
+  Car, ShoppingCart, Utensils, Wrench, Users, Shield,
+  Check, X, CheckCircle, AlertTriangle, Info, Wifi,
   Dumbbell, Waves, Baby, Calendar, Package, Truck
 } from "lucide-react";
-import "../css/services.css";
 
 const BuildingServicesPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -258,7 +257,6 @@ const BuildingServicesPage = () => {
 
   const handleRegisterService = (service) => {
     setCurrentService(service);
-
     if (service.price === "Miễn phí giao hàng" || service.price === "Giá thị trường") {
       handleConfirmRegister();
     } else {
@@ -272,7 +270,6 @@ const BuildingServicesPage = () => {
   };
 
   const handleConfirmRegister = () => {
-    // Cập nhật trạng thái đăng ký
     setServices(
       services.map((service) =>
         service.id === currentService.id
@@ -280,7 +277,6 @@ const BuildingServicesPage = () => {
           : service
       )
     );
-
     setShowConfirmation(false);
     setShowSuccess(true);
   };
@@ -298,17 +294,17 @@ const BuildingServicesPage = () => {
   });
 
   return (
-    <Page className="services-page">
-      <Box style={{ padding: "16px 16px 0", backgroundColor: "white" }}>
-        <Text.Title style={{ fontSize: "20px", fontWeight: "600", color: "#1a1a1a", marginTop: "8px"  }}>
-          Dịch vụ tiện ích
-        </Text.Title>
+    <Page className="bg-gray-50">
+      {/* Header */}
+      <Box className="px-4 pt-4 pb-2 bg-white">
+        <Text.Title className="text-xl font-bold text-gray-800">Dịch vụ tiện ích</Text.Title>
       </Box>
 
+      {/* Tabs */}
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
-        className="services-tabs"
+        className="zmp-tabs-custom bg-white sticky top-0 z-10  mt-2"
       >
         <Tabs.Tab key="all" label="Tất cả" />
         <Tabs.Tab key="registered" label="Đã đăng ký" />
@@ -317,14 +313,15 @@ const BuildingServicesPage = () => {
         <Tabs.Tab key="cleaning" label="Vệ sinh" />
       </Tabs>
 
-      <Box className="services-list">
+      {/* Services List */}
+      <Box className="p-4 grid grid-cols-1 gap-3 mb-10">
         {loading ? (
           Array(4).fill().map((_, index) => (
-            <Box key={index} className="service-card service-card-skeleton">
-              <Box className="service-icon-skeleton"></Box>
-              <Box className="service-content-skeleton">
-                <Box className="service-title-skeleton"></Box>
-                <Box className="service-desc-skeleton"></Box>
+            <Box key={index} className="animate-pulse bg-white rounded-lg p-4 flex items-center space-x-3">
+              <Box className="h-12 w-12 rounded-full bg-gray-200"></Box>
+              <Box className="flex-1 space-y-2">
+                <Box className="h-4 bg-gray-200 rounded w-3/4"></Box>
+                <Box className="h-3 bg-gray-200 rounded w-full"></Box>
               </Box>
             </Box>
           ))
@@ -332,139 +329,135 @@ const BuildingServicesPage = () => {
           filteredServices.map((service) => (
             <Box
               key={service.id}
-              className="service-card"
+              className="bg-white rounded-lg shadow-sm overflow-hidden"
               onClick={() => openServiceDetail(service)}
             >
-              <Box
-                className="service-icon"
-                style={{ backgroundColor: service.color }}
-              >
-                {service.icon}
-              </Box>
-              <Box className="service-content">
-                <Box className="service-header">
-                  <Text className="service-name">{service.name}</Text>
-                  <Text className="service-price">{service.price}</Text>
+              <Box className="p-4 flex items-start space-x-3">
+                <Box className={`${service.color} p-3 rounded-lg flex-shrink-0`}>
+                  {service.icon}
                 </Box>
-                <Text className="service-description">{service.description}</Text>
-                <Box className="service-footer">
-                  <Text className="service-users">
-                    <Users size={14} />
-                    {service.userCount} người dùng
-                  </Text>
-                  {service.isRegistered ? (
-                    <Button
-                      className="service-button registered"
-                      variant="text"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancelService(service);
-                      }}
-                    >
-                      <CheckCircle size={16} />
-                      Đã đăng ký
-                    </Button>
-                  ) : (
-                    <Button
-                      className="service-button"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRegisterService(service);
-                      }}
-                    >
-                      Đăng ký
-                    </Button>
-                  )}
+                <Box className="flex-1 min-w-0">
+                  <Box className="flex justify-between items-start space-x-2">
+                    <Text className="text-sm font-medium text-gray-800 truncate">{service.name}</Text>
+                    <Text className="text-xs font-semibold text-blue-500 whitespace-nowrap">
+                      {service.price}
+                    </Text>
+                  </Box>
+                  <Text className="text-xs text-gray-500 mt-1">{service.description}</Text>
+                  <Box className="mt-3 flex justify-between items-center">
+                    <Text className="text-xs text-gray-500 flex items-center">
+                      <Users size={12} className="mr-1" />
+                      {service.userCount} người dùng
+                    </Text>
+                    {service.isRegistered ? (
+                      <Button
+                        variant="text"
+                        size="small"
+                        className="text-green-500 text-xs font-medium"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCancelService(service);
+                        }}
+                      >
+                        <span className="flex items-center">
+                          <CheckCircle size={14} className="mr-1" />
+                          Đã đăng ký
+                        </span>
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        className="text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRegisterService(service);
+                        }}
+                      >
+                        Đăng ký
+                      </Button>
+                    )}
+                  </Box>
                 </Box>
               </Box>
             </Box>
           ))
         ) : (
-          <Box className="empty-services">
-            <Text>Không có dịch vụ nào phù hợp</Text>
+          <Box className="flex flex-col items-center justify-center py-10">
+            <Text className="text-gray-500">Không có dịch vụ nào phù hợp</Text>
           </Box>
         )}
       </Box>
 
-      {/* Modal chi tiết dịch vụ */}
+      {/* Service Detail Sheet */}
       <Sheet
         visible={showServiceDetail}
         onClose={() => setShowServiceDetail(false)}
-        height={500}
-        style={{marginBottom: "50px"}}
-        mask
-        handler
-        swipeToClose
+        className="zmp-sheet-custom"
       >
         {currentService && (
-          <Box className="service-detail">
-            <Box
-              className="service-detail-header"
-              style={{ backgroundColor: currentService.color }}
-            >
-              <Box className="service-detail-icon">
-                {currentService.icon}
+          <Box className="pb-8">
+            {/* Header */}
+            <Box className={`${currentService.color} p-6 text-white`}>
+              <Box className="flex items-center space-x-4">
+                <Box className="p-3 bg-white bg-opacity-20 rounded-lg">
+                  {currentService.icon}
+                </Box>
+                <Box>
+                  <Text className="text-xl font-bold">{currentService.name}</Text>
+                  <Text className="text-white text-opacity-90">{currentService.price}</Text>
+                </Box>
               </Box>
-              <Text className="service-detail-name">{currentService.name}</Text>
-              <Text className="service-detail-price">{currentService.price}</Text>
             </Box>
 
-            <Box className="service-detail-content">
-              <Text className="service-detail-description">
-                {currentService.description}
-              </Text>
+            {/* Content */}
+            <Box className="p-6 space-y-6">
+              <Text className="text-gray-700">{currentService.description}</Text>
 
-              <Box style={{ marginBottom: "20px" }}>
-                <Text style={{ fontSize: "14px", fontWeight: "600", color: "#1a1a1a", marginBottom: "8px" }}>
-                  Thông tin dịch vụ
-                </Text>
-                <Box style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <Text style={{ fontSize: "13px", color: "#666" }}>
-                    📍 Vị trí: {currentService.location}
+              <Box className="space-y-3">
+                <Text className="text-sm font-semibold text-gray-800">Thông tin dịch vụ</Text>
+                <Box className="space-y-2">
+                  <Text className="text-sm text-gray-600 flex items-center">
+                    <span className="mr-2">📍</span> Vị trí: {currentService.location}
                   </Text>
-                  <Text style={{ fontSize: "13px", color: "#666" }}>
-                    🕒 Giờ hoạt động: {currentService.operatingHours}
+                  <Text className="text-sm text-gray-600 flex items-center">
+                    <span className="mr-2">🕒</span> Giờ hoạt động: {currentService.operatingHours}
                   </Text>
                 </Box>
               </Box>
 
-              <Box className="service-features">
-                <Text className="service-feature-title feature-title">Tính năng chính</Text>
-                <Box className="feature-list">
+              <Box className="space-y-3">
+                <Text className="text-sm font-semibold text-gray-800">Tính năng chính</Text>
+                <Box className="space-y-2">
                   {currentService.features.map((feature, index) => (
-                    <Box key={index} className="feature-item">
-                      <Check size={16} color={currentService.color} />
-                      <Text>{feature}</Text>
+                    <Box key={index} className="flex items-start space-x-2">
+                      <Check size={16} className={`${currentService.color.replace('bg-', 'text-')} mt-0.5 flex-shrink-0`} />
+                      <Text className="text-sm text-gray-700">{feature}</Text>
                     </Box>
                   ))}
                 </Box>
               </Box>
 
-              <Box className="service-detail-footer">
-                {currentService.isRegistered ? (
-                  <Button
-                    className="service-action-btn cancel-btn"
-                    onClick={() => handleCancelService(currentService)}
-                  >
-                    Hủy đăng ký
-                  </Button>
-                ) : (
-                  <Button
-                    className="service-action-btn register-btn"
-                    style={{ backgroundColor: currentService.color }}
-                    onClick={() => handleRegisterService(currentService)}
-                  >
-                    Đăng ký ngay
-                  </Button>
-                )}
-              </Box>
+              {/* Action Button */}
+              <Button
+                fullWidth
+                className={`mt-4 ${currentService.isRegistered ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : currentService.color + ' text-white'}`}
+                onClick={() => {
+                  if (currentService.isRegistered) {
+                    handleCancelService(currentService);
+                  } else {
+                    handleRegisterService(currentService);
+                  }
+                  setShowServiceDetail(false);
+                }}
+              >
+                {currentService.isRegistered ? 'Hủy đăng ký' : 'Đăng ký ngay'}
+              </Button>
             </Box>
           </Box>
         )}
       </Sheet>
 
-      {/* Modal xác nhận */}
+      {/* Confirmation Modal */}
       <Modal
         visible={showConfirmation}
         title={currentService?.isRegistered ? "Xác nhận hủy đăng ký" : "Xác nhận đăng ký"}
@@ -482,60 +475,49 @@ const BuildingServicesPage = () => {
         ]}
       >
         {currentService && (
-          <Box className="confirmation-content">
+          <Box className="flex items-start space-x-3 p-4">
             {currentService.isRegistered ? (
-              <Box className="confirmation-message">
-                <AlertTriangle size={24} color="#F59E0B" />
-                <Text>
-                  Bạn có chắc chắn muốn hủy đăng ký dịch vụ "{currentService.name}"?
-                  {!currentService.price.includes("Miễn phí") && !currentService.price.includes("Giá thị trường") && 
-                   " Lưu ý: Phí đã thanh toán sẽ không được hoàn lại."}
-                </Text>
-              </Box>
+              <AlertTriangle size={24} className="text-yellow-500 flex-shrink-0" />
             ) : (
-              <Box className="confirmation-message">
-                <Info size={24} color="#3B82F6" />
-                <Text>
-                  Bạn có chắc chắn muốn đăng ký dịch vụ "{currentService.name}"?
-                  {!currentService.price.includes("Miễn phí") && !currentService.price.includes("Giá thị trường") && 
-                   ` Chi phí: ${currentService.price}.`}
-                </Text>
-              </Box>
+              <Info size={24} className="text-blue-500 flex-shrink-0" />
             )}
+            <Text className="text-sm text-gray-700">
+              {currentService.isRegistered
+                ? `Bạn có chắc chắn muốn hủy đăng ký dịch vụ "${currentService.name}"?${!currentService.price.includes("Miễn phí") && !currentService.price.includes("Giá thị trường")
+                  ? " Lưu ý: Phí đã thanh toán sẽ không được hoàn lại."
+                  : ""
+                }`
+                : `Bạn có chắc chắn muốn đăng ký dịch vụ "${currentService.name}"?${!currentService.price.includes("Miễn phí") && !currentService.price.includes("Giá thị trường")
+                  ? ` Chi phí: ${currentService.price}.`
+                  : ""
+                }`}
+            </Text>
           </Box>
         )}
       </Modal>
 
-      {/* Sheet thông báo thành công */}
+      {/* Success Sheet */}
       <Sheet
         visible={showSuccess}
         onClose={() => setShowSuccess(false)}
-        autoHeight
-        style={{ marginBottom: "50px" }}
-        mask
-        handler
-        swipeToClose
+        className="zmp-sheet-custom"
       >
         {currentService && (
-          <Box className="success-sheet">
-            <Box
-              className="success-icon"
-              style={{ backgroundColor: currentService.color }}
-            >
-              <CheckCircle size={40} />
+          <Box className="p-6 flex flex-col items-center text-center">
+            <Box className={`${currentService.color} p-4 rounded-full mb-4`}>
+              <CheckCircle size={40} className="text-white" />
             </Box>
-            <Text className="success-title">
-              {currentService.isRegistered ? "Đăng ký thành công!" : "Hủy đăng ký thành công!"}
+            <Text className="text-xl font-bold text-gray-800 mb-2">
+              {!currentService.isRegistered ? "Đăng ký thành công!" : "Hủy đăng ký thành công!"}
             </Text>
-            <Text className="success-message">
-              {currentService.isRegistered
+            <Text className="text-gray-600 mb-6">
+              {!currentService.isRegistered
                 ? `Bạn đã đăng ký thành công dịch vụ "${currentService.name}". Vui lòng liên hệ quản lý tòa nhà để biết thêm chi tiết.`
                 : `Bạn đã hủy đăng ký dịch vụ "${currentService.name}". Cảm ơn bạn đã sử dụng dịch vụ.`}
             </Text>
             <Button
-              className="success-btn"
               fullWidth
-              style={{ backgroundColor: currentService.color }}
+              className={`${currentService.color} text-white`}
               onClick={() => setShowSuccess(false)}
             >
               {currentService.isRegistered ? "Đã hiểu" : "Đóng"}

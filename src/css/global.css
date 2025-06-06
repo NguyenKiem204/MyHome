@@ -1,0 +1,49 @@
+/* Custom styles for ZMP components to work with Tailwind */
+.zmp-tabs-custom .zmp-tabs-bar {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.zmp-tabs-custom .zmp-tabs-tab {
+  padding: 12px 16px;
+}
+
+.zmp-input-custom input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.zmp-textarea-custom textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: white;
+}
+
+.zmp-sheet-custom .zmp-sheet-container {
+  border-radius: 16px 16px 0 0;
+}
+/* Custom styles for ZMP components */
+.zmp-tabs-custom .zmp-tabs-bar {
+  @apply bg-white border-b border-gray-200;
+}
+
+.zmp-tabs-custom .zmp-tabs-tab {
+  @apply px-4 py-3 text-sm font-medium;
+}
+
+.zmp-tabs-custom .zmp-tabs-tab-active {
+  @apply text-blue-500 border-b-2 border-blue-500;
+}
+
+.zmp-sheet-custom .zmp-sheet-container {
+  @apply rounded-t-2xl overflow-hidden;
+}
+
+.zmp-sheet-custom .zmp-sheet-handler {
+  @apply bg-gray-300;
+}

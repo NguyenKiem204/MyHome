@@ -17,7 +17,6 @@ import BlogPage from "../../pages/BlogPage";
 import BlogDetailPage from "../../pages/BlogDetailPage";
 import ServicesPage from "../../pages/ServicesPage";
 import NotFoundPage from "../../pages/NotFoundPage";
-import "../../css/layout.css";
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
 
@@ -45,7 +44,7 @@ const Layout = () => {
           <ErrorBoundary>
             <Box className="app-layout">
               <Header />
-              <Box className="main-content">
+              <Box className="main-content" >
                 <AnimationRoutes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/profile" element={<ProfilePage />} />
