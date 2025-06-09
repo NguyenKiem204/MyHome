@@ -4,7 +4,15 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content: img-src 'self' blob: data:;"
+      content="
+        default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:;
+        img-src 'self' blob: data: *;
+        connect-src 'self' ws: wss: http://localhost:* http://127.0.0.1:*;
+        font-src 'self';
+        object-src 'none';
+        media-src 'self';
+        frame-src 'self' https://h5.zdn.vn;
+      "
     />
     <meta
       name="viewport"
@@ -33,7 +41,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <!-- built script files will be auto injected -->
-    <script type="module" src="./src/app.js"></script>
+    <script type="module" src="./src/app.jsx"></script>
   </body>
 </html>

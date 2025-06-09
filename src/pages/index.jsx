@@ -1,154 +1,95 @@
+// src/pages/index.jsx (HomePage)
 import React, { useState, useEffect } from "react";
-import { Box, Page, Text, Button, Sheet, Input } from "zmp-ui";
-import { User, MessageSquare, FileText, Grid, Bell, Settings, Clock, ExternalLink } from "lucide-react";
-import { getUserInfo } from "zmp-sdk/apis";
+import { Box, Page, Text, Button } from "zmp-ui";
+import { User, MessageSquare, FileText, Grid, Bell, Settings, Clock } from "lucide-react";
+import axios from "axios";
+import api from "../utils/api";
 
 const HomePage = () => {
-  const [userName, setUserName] = useState("Người dùng");
-  const [userInfo, setUserInfo] = useState(null);
-  // const [showWelcomeSheet, setShowWelcomeSheet] = useState(true);
+  const [appUserInfo, setAppUserInfo] = useState(null);
+  const [appUserDataLoading, setAppUserDataLoading] = useState(true);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [userDataLoading, setUserDataLoading] = useState(true);
 
   const API_KEY = "474cc9de345a4e1ca713aaf4f1be01e5";
 
-  // Lấy thông tin người dùng từ ZMP SDK
-  const fetchUserInfo = async () => {
+  const fetchAppUserInfo = async () => {
     try {
-      setUserDataLoading(true);
-      
-      const userInfoResponse = await getUserInfo({});
-      
-      if (userInfoResponse.userInfo) {
-        const { name, avatar } = userInfoResponse.userInfo;
-        const userData = {
-          name: name || "Người dùng",
-          avatar: avatar || null,
-        };
-        
-        setUserInfo(userData);
-        setUserName(userData.name);
-        
-        // Nếu có thông tin người dùng, không cần hiển thị welcome sheet
-        // setShowWelcomeSheet(false);
-        
-        console.log("User info loaded:", userData);
+      setAppUserDataLoading(true);
+      const response = await api.get("/auth/me"); 
+      if (response.data.success) {
+        setAppUserInfo(response.data.data);
+      } else {
+        console.error("Không thể lấy thông tin người dùng ứng dụng:", response.data.message);
       }
     } catch (error) {
-      console.error("Error fetching user info:", error);
-      // Giữ nguyên trạng thái mặc định nếu không lấy được thông tin
+      console.error("Lỗi khi lấy thông tin người dùng ứng dụng:", error);
     } finally {
-      setUserDataLoading(false);
+      setAppUserDataLoading(false);
     }
   };
 
-  useEffect(() => {
-    // Lấy thông tin người dùng khi component mount
-    fetchUserInfo();
-    
-    // Lấy dữ liệu tin tức
-    fetchNewsData();
-  }, []);
-
-  const fetchNewsData = async (category = "all", query = "") => {
+  const fetchNewsData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
-      setError(null);
-
-      let url;
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 7);
-      
-      const formatDate = (date) => date.toISOString().split('T')[0];
-
-      if (query) {
-        url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&from=${formatDate(yesterday)}&to=${formatDate(today)}&sortBy=popularity&language=en&pageSize=20&apiKey=${API_KEY}`;
-      } else {
-        url = `https://newsapi.org/v2/everything?q=technology OR business OR science&from=${formatDate(yesterday)}&to=${formatDate(today)}&sortBy=popularity&language=en&pageSize=6&apiKey=${API_KEY}`;
-      }
-
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (data.status === 'ok') {
-        setNews(data.articles.slice(0, 3));
-      } else {
-        setError(data.message || 'Failed to fetch news');
-      }
+      const response = await axios.get(
+        `https://newsapi.org/v2/top-headlines?country=us&apiKey=${API_KEY}`
+      );
+      setNews(response.data.articles);
     } catch (err) {
-      setError('Network error occurred');
-      console.error('News fetch error:', err);
+      console.error("Error fetching news:", err);
+      setError("Không thể tải tin tức. Vui lòng kiểm tra kết nối mạng.");
     } finally {
       setLoading(false);
     }
   };
 
-  const featureCards = [
-    {
-      id: 1,
-      title: "Thông tin cá nhân",
-      icon: <User size={28} />,
-      path: "/profile",
-      color: "#1E40AF",
-      bgColor: "rgba(30, 64, 175, 0.1)"
-    },
-    {
-      id: 2,
-      title: "Gửi phản ánh",
-      icon: <MessageSquare size={28} />,
-      path: "/feedback",
-      color: "#059669",
-      bgColor: "rgba(5, 150, 105, 0.1)"
-    },
-    {
-      id: 3,
-      title: "Xem các blog",
-      icon: <FileText size={28} />,
-      path: "/blogs",
-      color: "#D97706",
-      bgColor: "rgba(217, 119, 6, 0.1)"
-    },
-    {
-      id: 4,
-      title: "Đăng ký tiện ích",
-      icon: <Grid size={28} />,
-      path: "/services",
-      color: "#DC2626",
-      bgColor: "rgba(220, 38, 38, 0.1)"
-    },
-    {
-      id: 5,
-      title: "Thông báo",
-      icon: <Bell size={28} />,
-      path: "/notifications",
-      color: "#7C3AED",
-      bgColor: "rgba(124, 58, 237, 0.1)"
-    },
-    {
-      id: 6,
-      title: "Cài đặt",
-      icon: <Settings size={28} />,
-      path: "/settings",
-      color: "#6B7280",
-      bgColor: "rgba(107, 114, 128, 0.1)"
-    },
-  ];
-
   const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
   const truncateText = (text, maxLength) => {
-    if (!text || text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+    if (!text) return "";
+    if (text.length > maxLength) {
+      return text.substring(0, maxLength) + "...";
+    }
+    return text;
+  };
+
+  useEffect(() => {
+    fetchAppUserInfo();
+    fetchNewsData();
+  }, []);
+
+  const featureCards = [
+    { id: 1, title: "Tài khoản", icon: <User size={28} />, path: "/profile", color: "#3B82F6", bgColor: "#DBEAFE" },
+    { id: 2, title: "Phản ánh", icon: <MessageSquare size={28} />, path: "/feedback", color: "#F59E0B", bgColor: "#FFFBEB" },
+    { id: 3, title: "Blog", icon: <FileText size={28} />, path: "/blogs", color: "#10B981", bgColor: "#D1FAE5" },
+    { id: 4, title: "Dịch vụ", icon: <Grid size={28} />, path: "/services", color: "#EF4444", bgColor: "#FEE2E2" },
+    { id: 5, title: "Cài đặt", icon: <Settings size={28} />, path: "/settings", color: "#6366F1", bgColor: "#EEF2FF" },
+    { id: 6, title: "Thông báo", icon: <Bell size={28} />, path: "/notifications", color: "#8B5CF6", bgColor: "#EDE9FE" },
+  ];
+
+  const getDisplayName = () => {
+    if (!appUserInfo) return "Người dùng";
+    if (appUserInfo.firstName && appUserInfo.lastName) {
+      return `${appUserInfo.firstName} ${appUserInfo.lastName}`;
+    }
+    if (appUserInfo.firstName) {
+      return appUserInfo.firstName;
+    }
+    if (appUserInfo.username) {
+      return appUserInfo.username;
+    }
+    return "Người dùng";
   };
 
   return (
@@ -157,14 +98,14 @@ const HomePage = () => {
       <Box className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-6 text-white mt-16">
         <Box className="flex items-center">
           {/* Avatar */}
-          {userInfo?.avatar && (
+          {appUserInfo?.avatarUrl && ( // Sử dụng avatarUrl từ thông tin backend
             <Box className="w-12 h-12 mr-3 rounded-full overflow-hidden border-2 border-white/30">
               <img
-                src={userInfo.avatar}
+                src={appUserInfo.avatarUrl}
                 alt="Avatar"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.style.display = 'none';
+                  e.target.style.display = 'none'; // Ẩn ảnh nếu lỗi
                 }}
               />
             </Box>
@@ -172,10 +113,10 @@ const HomePage = () => {
           
           <Box className="flex-1">
             <Text className="text-xl font-bold mb-1">
-              {userDataLoading ? (
+              {appUserDataLoading ? (
                 <span className="inline-block w-32 h-6 bg-white/20 rounded animate-pulse"></span>
               ) : (
-                `Xin chào, ${userName}! 👋`
+                `Xin chào, ${getDisplayName()}! 👋` // SỬA ĐỔI Ở ĐÂY để hiển thị tên đầy đủ
               )}
             </Text>
             <Text className="text-blue-100 text-sm">
@@ -219,7 +160,7 @@ const HomePage = () => {
           </Box>
         </Box>
 
-        {/* News Section */}
+        {/* News Section (Giữ nguyên) */}
         <Box className="mt-8">
           <Box className="flex items-center justify-between mb-4">
             <Box className="flex items-center">
@@ -309,44 +250,6 @@ const HomePage = () => {
           )}
         </Box>
       </Box>
-
-      {/* Welcome Sheet - chỉ hiện khi không có thông tin người dùng */}
-      {/* <Sheet
-        visible={showWelcomeSheet && !userInfo}
-        onClose={() => setShowWelcomeSheet(false)}
-        autoHeight
-        mask
-        handler
-        swipeToClose
-      >
-        <Box className="p-6 text-center mb-8">
-          <Box className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User size={32} color="white" />
-          </Box>
-          
-          <Text className="text-xl font-bold text-gray-900 mb-2">
-            Chào mừng bạn! 🎉
-          </Text>
-          <Text className="text-gray-600 mb-6">
-            Vui lòng cho chúng tôi biết tên của bạn để cá nhân hóa trải nghiệm
-          </Text>
-          
-          <Input
-            className="mb-4"
-            placeholder="Nhập tên của bạn"
-            value={userName === "Người dùng" ? "" : userName}
-            onChange={(e) => setUserName(e.target.value || "Người dùng")}
-          />
-          
-          <Button
-            className="w-full bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            fullWidth
-            onClick={() => setShowWelcomeSheet(false)}
-          >
-            Bắt đầu sử dụng
-          </Button>
-        </Box>
-      </Sheet> */}
     </Page>
   );
 };
