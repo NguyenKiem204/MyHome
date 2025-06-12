@@ -1,11 +1,13 @@
-// src/pages/index.jsx (HomePage)
 import React, { useState, useEffect } from "react";
 import { Box, Page, Text, Button } from "zmp-ui";
 import { User, MessageSquare, FileText, Grid, Bell, Settings, Clock } from "lucide-react";
 import axios from "axios";
 import api from "../utils/api";
+import { useNavigate } from "zmp-ui";
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   const [appUserInfo, setAppUserInfo] = useState(null);
   const [appUserDataLoading, setAppUserDataLoading] = useState(true);
   const [news, setNews] = useState([]);
@@ -17,7 +19,7 @@ const HomePage = () => {
   const fetchAppUserInfo = async () => {
     try {
       setAppUserDataLoading(true);
-      const response = await api.get("/auth/me"); 
+      const response = await api.get("/auth/me");
       if (response.data.success) {
         setAppUserInfo(response.data.data);
       } else {
@@ -40,7 +42,10 @@ const HomePage = () => {
       setNews(response.data.articles);
     } catch (err) {
       console.error("Error fetching news:", err);
-      setError("Không thể tải tin tức. Vui lòng kiểm tra kết nối mạng.");
+      setError(`Không thể tải tin tức. Vui lòng kiểm tra kết nối mạng hoặc API Key của bạn. Lỗi: ${err.message}`);
+      if (err.response && err.response.status === 403) {
+        setError("API Key của NewsAPI có thể không hợp lệ hoặc đã vượt quá giới hạn truy cập.");
+      }
     } finally {
       setLoading(false);
     }
@@ -94,29 +99,27 @@ const HomePage = () => {
 
   return (
     <Page className="min-h-screen bg-gray-50 ">
-      {/* Header */}
       <Box className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-6 text-white mt-16">
         <Box className="flex items-center">
-          {/* Avatar */}
-          {appUserInfo?.avatarUrl && ( // Sử dụng avatarUrl từ thông tin backend
+          {appUserInfo?.avatarUrl && (
             <Box className="w-12 h-12 mr-3 rounded-full overflow-hidden border-2 border-white/30">
               <img
                 src={appUserInfo.avatarUrl}
                 alt="Avatar"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.style.display = 'none'; // Ẩn ảnh nếu lỗi
+                  e.target.style.display = 'none';
                 }}
               />
             </Box>
           )}
-          
+
           <Box className="flex-1">
             <Text className="text-xl font-bold mb-1">
               {appUserDataLoading ? (
                 <span className="inline-block w-32 h-6 bg-white/20 rounded animate-pulse"></span>
               ) : (
-                `Xin chào, ${getDisplayName()}! 👋` // SỬA ĐỔI Ở ĐÂY để hiển thị tên đầy đủ
+                `Xin chào, ${getDisplayName()}! 👋`
               )}
             </Text>
             <Text className="text-blue-100 text-sm">
@@ -127,7 +130,6 @@ const HomePage = () => {
       </Box>
 
       <Box className="px-4 pb-20">
-        {/* Feature Cards */}
         <Box className="mt-6">
           <Box className="flex items-center mb-4">
             <Grid className="mr-2 text-gray-700" size={20} />
@@ -135,17 +137,17 @@ const HomePage = () => {
               Tính năng chính
             </Text>
           </Box>
-          
+
           <Box className="grid grid-cols-2 gap-4">
             {featureCards.map((feature) => (
               <Box
                 key={feature.id}
                 className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
-                style={{ 
+                style={{
                   backgroundColor: feature.bgColor,
                   borderColor: feature.color + '20'
                 }}
-                onClick={() => window.location.href = feature.path}
+                onClick={() => navigate(feature.path)}
               >
                 <Box className="flex flex-col items-center text-center">
                   <Box className="mb-3" style={{ color: feature.color }}>
@@ -160,7 +162,6 @@ const HomePage = () => {
           </Box>
         </Box>
 
-        {/* News Section (Giữ nguyên) */}
         <Box className="mt-8">
           <Box className="flex items-center justify-between mb-4">
             <Box className="flex items-center">
@@ -172,7 +173,7 @@ const HomePage = () => {
             <Button
               className="text-white-600 text-sm font-medium"
               variant="text"
-              onClick={() => window.location.href = "/blogs"}
+              onClick={() => navigate("/blogs")}
             >
               Xem tất cả →
             </Button>
@@ -191,7 +192,7 @@ const HomePage = () => {
             <Box className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
               <div className="text-2xl mb-2">⚠️</div>
               <Text className="text-red-800 font-medium mb-1">Không thể tải tin tức</Text>
-              <Text className="text-red-600 text-sm mb-3">{error}</Text>
+              <Text className="text-red-600 text-sm text-sm mb-3">{error}</Text>
               <button
                 className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
                 onClick={() => fetchNewsData()}
@@ -225,7 +226,7 @@ const HomePage = () => {
                         <FileText size={24} className="text-blue-600" />
                       )}
                     </Box>
-                    
+
                     <Box className="flex-1 min-w-0">
                       <Text className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
                         {truncateText(article.title, 70)}

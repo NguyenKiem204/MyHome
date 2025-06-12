@@ -1,8 +1,6 @@
-// src/utils/api.js - API interceptor để tự động refresh token
 import axios from 'axios';
-import { getValidToken, clearTokens, setAccessToken } from './auth';
+import { clearTokens, setAccessToken } from './auth';
 
-// Tạo axios instance
 const api = axios.create({
   baseURL: 'https://harmless-right-chipmunk.ngrok-free.app/api',
   withCredentials: true,
@@ -26,15 +24,12 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Request interceptor - tự động thêm Bearer token
 api.interceptors.request.use(
   async (config) => {
-    // Không cần gọi getValidToken ở đây, vì logic refresh sẽ nằm trong response interceptor
-    // Chỉ lấy token hiện có từ AuthManager
-    const authManager = (await import('./auth')).default; // Lấy instance AuthManager
-    const accessToken = authManager.getAccessToken(); // Lấy token từ AuthManager
+    const authManager = (await import('./auth')).default;
+    const accessToken = authManager.getAccessToken();
 
-    if (accessToken && !authManager.isTokenExpired()) { // Chỉ thêm nếu token còn hạn
+    if (accessToken && !authManager.isTokenExpired()) { 
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
@@ -88,28 +83,24 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
         } else {
-          // Refresh token thành công nhưng phản hồi không đúng format hoặc success=false
-          clearTokens(); // Xóa tất cả token
+          clearTokens();
           if (typeof window !== 'undefined') {
-            window.location.href = '/login'; // Chuyển hướng về login
+            window.location.href = '/login';
           }
           return Promise.reject(error);
         }
       } catch (refreshError) {
         console.error('Refresh token failed:', refreshError);
-        // Refresh token thất bại hoàn toàn (server trả 401, 403, network error...)
-        clearTokens(); // Xóa tất cả token
-        processQueue(refreshError); // Thông báo lỗi cho các request đang chờ
+        clearTokens();
+        processQueue(refreshError);
         if (typeof window !== 'undefined') {
-          window.location.href = '/login'; // Chuyển hướng về login
+          window.location.href = '/login';
         }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
-
-    // Nếu lỗi không phải 401 hoặc là request đã thử lại
     return Promise.reject(error);
   }
 );

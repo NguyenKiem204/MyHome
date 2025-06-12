@@ -1,14 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BottomNavigation } from "zmp-ui";
 import { Home, User, MessageSquare, FileText, Grid } from "lucide-react";
-import { useNavigate } from "zmp-ui";
+import { useNavigate, useLocation } from "zmp-ui";
 
 const Navigation = () => {
-  const [activeTab, setActiveTab] = useState("home");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [activeTab, setActiveTab] = useState("home");
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    let newActiveTab = "home";
+
+    if (currentPath.startsWith("/profile")) {
+      newActiveTab = "profile";
+    } else if (currentPath.startsWith("/feedback")) {
+      newActiveTab = "feedback";
+    } else if (currentPath.startsWith("/blogs")) {
+      newActiveTab = "blogs";
+    } else if (currentPath.startsWith("/services")) {
+      newActiveTab = "services";
+    } else if (currentPath === "/") {
+      newActiveTab = "home";
+    }
+
+    if (activeTab !== newActiveTab) {
+      setActiveTab(newActiveTab);
+    }
+  }, [location.pathname, activeTab]);
 
   const handleNavChange = (selected) => {
-    setActiveTab(selected);
     switch (selected) {
       case "home":
         navigate("/");
@@ -35,7 +57,7 @@ const Navigation = () => {
       fixed
       activeKey={activeTab}
       onChange={(key) => handleNavChange(key)}
-      style={{ zIndex: 1000 }} // Đảm bảo Navigation nổi trên nội dung
+      style={{ zIndex: 1000 }}
     >
       <BottomNavigation.Item
         key="home"

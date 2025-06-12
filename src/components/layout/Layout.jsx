@@ -20,7 +20,6 @@ import NotFoundPage from "../../pages/NotFoundPage";
 import LoginPage from "../../pages/LoginPage";
 import { isAuthenticated, refreshTokenIfNeeded } from "../../utils/auth";
 
-// Component ProtectedRoute
 const ProtectedRoute = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,20 +29,16 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Kiểm tra authentication hiện tại
         if (isAuthenticated()) {
           setIsAuthed(true);
           setIsChecking(false);
           return;
         }
-
-        // Thử refresh token nếu chưa authenticated
         const refreshed = await refreshTokenIfNeeded();
         if (refreshed) {
           setIsAuthed(true);
         } else {
           setIsAuthed(false);
-          // Chỉ redirect về login nếu không phải đang ở trang login
           if (location.pathname !== "/login") {
             navigate("/login", { replace: true });
           }
@@ -62,7 +57,6 @@ const ProtectedRoute = ({ children }) => {
     checkAuth();
   }, [navigate, location.pathname]);
 
-  // Hiển thị loading trong khi check authentication
   if (isChecking) {
     return (
       <Box className="flex items-center justify-center min-h-screen">
