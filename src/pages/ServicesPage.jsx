@@ -145,7 +145,7 @@ const BuildingServicesPage = () => {
   });
 
   return (
-    <Page className="bg-gray-50">
+    <Page className="bg-gray-50 py-5">
       {/* Header */}
       <Box className="px-4 pt-4 pb-2 bg-white">
         <Text.Title className="text-xl font-bold text-gray-800">

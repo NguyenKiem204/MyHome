@@ -15,8 +15,8 @@ const Header = () => {
       leftIcon={!isHomePage && <ChevronLeft size={24} />}
       onBackClick={() => navigate(-1)}
      style={{
-    height: "65px",
-    minHeight: "60px",
+    height: "73px",
+    minHeight: "68px",
     padding: "10px",
     alignItems: "end",
   }}
