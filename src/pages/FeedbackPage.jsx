@@ -1,43 +1,56 @@
 // src/pages/FeedbackPage.jsx
 import React, { useState } from "react";
-import { Box, Page, Text, Input, Button, Radio, Tabs, List, Icon, Sheet } from "zmp-ui";
+import {
+  Box,
+  Page,
+  Text,
+  Input,
+  Button,
+  Radio,
+  Tabs,
+  List,
+  Icon,
+  Sheet,
+} from "zmp-ui";
 import { Send, Camera, X, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import api from "../utils/api";
 
 const FeedbackPage = () => {
   const [activeTab, setActiveTab] = useState("new");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
-  const [feedbackType, setFeedbackType] = useState("suggestion");
-  const [attachments, setAttachments] = useState([]);
+  const [feedbackType, setFeedbackType] = useState("Suggest");
   const [showSuccessSheet, setShowSuccessSheet] = useState(false);
 
-  const handleAddAttachment = () => {
-    const newAttachment = {
-      id: Date.now(),
-      name: `Attachment_${attachments.length + 1}.jpg`,
-      size: "1.2 MB",
-      type: "image/jpeg",
-    };
-    setAttachments([...attachments, newAttachment]);
-  };
+  const BASE_URL =
+    "https://usable-dinosaurs-b795619e4a.strapiapp.com/api/feedbacks";
 
-  const handleRemoveAttachment = (id) => {
-    setAttachments(attachments.filter(item => item.id !== id));
-  };
-
-  const handleSubmit = () => {
-    console.log({
-      subject,
-      content,
-      feedbackType,
-      attachments,
-    });
-
-    setSubject("");
-    setContent("");
-    setFeedbackType("suggestion");
-    setAttachments([]);
-    setShowSuccessSheet(true);
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(BASE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          Type: feedbackType,
+          Title: subject,
+          Content: content,
+          PhoneNumber: "0987654321", // Hoặc lấy từ state nếu có input
+        }),
+      });
+      if (response.ok) {
+        setSubject("");
+        setContent("");
+        setFeedbackType("Suggest");
+        setShowSuccessSheet(true);
+      } else {
+        alert("Gửi phản hồi thất bại. Vui lòng thử lại!");
+      }
+    } catch (error) {
+      alert("Có lỗi xảy ra khi gửi phản hồi!");
+      console.error(error);
+    }
   };
 
   const feedbackHistory = [
@@ -84,22 +97,23 @@ const FeedbackPage = () => {
       >
         <Tabs.Tab key="new" label="Gửi phản ánh">
           <Box className="p-4">
-            <Text className="text-xl font-bold mb-6 text-gray-800">Gửi phản ánh của bạn</Text>
+            <Text className="text-xl font-bold mb-6 text-gray-800">
+              Gửi phản ánh của bạn
+            </Text>
 
             <Box className="mb-5">
-              <Text className="text-sm font-medium mb-2 text-gray-700">Loại phản ánh</Text>
-              <Radio.Group
-                value={feedbackType}
-                onChange={setFeedbackType}
-              >
+              <Text className="text-sm font-medium mb-2 text-gray-700">
+                Loại phản ánh
+              </Text>
+              <Radio.Group value={feedbackType} onChange={setFeedbackType}>
                 <Box className="flex flex-col space-y-2">
-                  <Radio value="suggestion" className="flex items-center">
+                  <Radio value="Suggest" className="flex items-center">
                     <span className="ml-2">Đề xuất</span>
                   </Radio>
-                  <Radio value="problem" className="flex items-center">
+                  <Radio value="Issue" className="flex items-center">
                     <span className="ml-2">Sự cố</span>
                   </Radio>
-                  <Radio value="question" className="flex items-center">
+                  <Radio value="Question" className="flex items-center">
                     <span className="ml-2">Câu hỏi</span>
                   </Radio>
                 </Box>
@@ -107,7 +121,9 @@ const FeedbackPage = () => {
             </Box>
 
             <Box className="mb-5">
-              <Text className="text-sm font-medium mb-2 text-gray-700">Tiêu đề</Text>
+              <Text className="text-sm font-medium mb-2 text-gray-700">
+                Tiêu đề
+              </Text>
               <Input
                 placeholder="Nhập tiêu đề phản ánh"
                 value={subject}
@@ -117,7 +133,9 @@ const FeedbackPage = () => {
             </Box>
 
             <Box className="mb-5">
-              <Text className="text-sm font-medium mb-2 text-gray-700">Nội dung</Text>
+              <Text className="text-sm font-medium mb-2 text-gray-700">
+                Nội dung
+              </Text>
               <Input.TextArea
                 placeholder="Mô tả chi tiết phản ánh của bạn"
                 value={content}
@@ -125,36 +143,6 @@ const FeedbackPage = () => {
                 rows={5}
                 className="zmp-textarea-custom"
               />
-            </Box>
-
-            <Box className="mb-6">
-              <Text className="text-sm font-medium mb-2 text-gray-700">Tệp đính kèm</Text>
-              <Box className="space-y-2">
-                {attachments.map((file) => (
-                  <Box key={file.id} className="flex items-center justify-between p-3 bg-gray-100 rounded-lg">
-                    <Box className="flex items-center space-x-2">
-                      <Clock size={16} className="text-gray-500" />
-                      <Text className="text-sm text-gray-800">{file.name}</Text>
-                      <Text className="text-xs text-gray-500">({file.size})</Text>
-                    </Box>
-                    <Button
-                      variant="text"
-                      onClick={() => handleRemoveAttachment(file.id)}
-                      icon={<X size={16} className="text-gray-500 hover:text-red-500" />}
-                      className="p-1"
-                    />
-                  </Box>
-                ))}
-
-                <Button
-                  variant="secondary"
-                  suffixIcon={<Camera size={16} />}
-                  onClick={handleAddAttachment}
-                  className="w-full mt-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                >
-                  Thêm tệp đính kèm
-                </Button>
-              </Box>
             </Box>
 
             <Button
@@ -179,8 +167,12 @@ const FeedbackPage = () => {
                     className="bg-white rounded-lg shadow-sm"
                     title={
                       <Box className="flex justify-between items-center w-full">
-                        <Text className="font-medium text-gray-800 truncate">{item.subject}</Text>
-                        <div className="ml-2 flex-shrink-0">{getStatusIcon(item.status)}</div>
+                        <Text className="font-medium text-gray-800 truncate">
+                          {item.subject}
+                        </Text>
+                        <div className="ml-2 flex-shrink-0">
+                          {getStatusIcon(item.status)}
+                        </div>
                       </Box>
                     }
                     description={
@@ -189,17 +181,25 @@ const FeedbackPage = () => {
                           {item.date} -{" "}
                           <span
                             className={
-                              item.status === "completed" ? "text-green-500" :
-                                item.status === "processing" ? "text-yellow-500" : "text-gray-500"
+                              item.status === "completed"
+                                ? "text-green-500"
+                                : item.status === "processing"
+                                ? "text-yellow-500"
+                                : "text-gray-500"
                             }
                           >
-                            {item.status === "completed" ? "Đã xử lý" :
-                              item.status === "processing" ? "Đang xử lý" : "Chờ xử lý"}
+                            {item.status === "completed"
+                              ? "Đã xử lý"
+                              : item.status === "processing"
+                              ? "Đang xử lý"
+                              : "Chờ xử lý"}
                           </span>
                         </Text>
                       </Box>
                     }
-                    onClick={() => window.location.href = `/feedback/${item.id}`}
+                    onClick={() =>
+                      (window.location.href = `/feedback/${item.id}`)
+                    }
                   />
                 ))}
               </List>
@@ -222,13 +222,16 @@ const FeedbackPage = () => {
         swipeToClose
         className="zmp-sheet-custom"
       >
-        <Box className="p-6 flex flex-col items-center">
+        <Box className="p-6 flex flex-col items-center mb-8">
           <Box className="mb-4">
             <CheckCircle size={50} className="text-green-500" />
           </Box>
-          <Text className="text-xl font-bold mb-2 text-gray-800">Gửi phản ánh thành công!</Text>
+          <Text className="text-xl font-bold mb-2 text-gray-800">
+            Gửi phản ánh thành công!
+          </Text>
           <Text className="text-center text-gray-600 mb-6">
-            Cảm ơn bạn đã gửi phản ánh. Chúng tôi sẽ xem xét và phản hồi sớm nhất có thể.
+            Cảm ơn bạn đã gửi phản ánh. Chúng tôi sẽ xem xét và phản hồi sớm
+            nhất có thể.
           </Text>
           <Button
             fullWidth

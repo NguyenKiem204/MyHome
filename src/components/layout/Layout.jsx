@@ -1,4 +1,3 @@
-// src/components/layout/Layout.jsx - Cập nhật để xử lý authentication tốt hơn
 import React, { useEffect, useState } from "react";
 import {
   SnackbarProvider,
@@ -22,64 +21,65 @@ import BuildingSelectorPage from "../../pages/building-selector";
 import { isAuthenticated, refreshTokenIfNeeded } from "../../utils/auth";
 
 const ProtectedRoute = ({ children }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [isChecking, setIsChecking] = useState(true);
-  const [isAuthed, setIsAuthed] = useState(false);
+  //   const navigate = useNavigate();
+  // const location = useLocation();
+  // const [isChecking, setIsChecking] = useState(true);
+  // const [isAuthed, setIsAuthed] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Nếu chưa đăng nhập và không phải ở trang chọn tòa nhà, chuyển đến trang chọn tòa nhà
-        if (!isAuthenticated() && location.pathname !== "/building-selector") {
-          navigate("/building-selector", { replace: true });
-          return;
-        }
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       // Nếu chưa đăng nhập và không phải ở trang chọn tòa nhà, chuyển đến trang chọn tòa nhà
+  //       if (!isAuthenticated() && location.pathname !== "/building-selector") {
+  //         navigate("/building-selector", { replace: true });
+  //         return;
+  //       }
 
-        if (isAuthenticated()) {
-          setIsAuthed(true);
-          setIsChecking(false);
-          return;
-        }
-        const refreshed = await refreshTokenIfNeeded();
-        if (refreshed) {
-          setIsAuthed(true);
-        } else {
-          setIsAuthed(false);
-          if (location.pathname !== "/login") {
-            navigate("/login", { replace: true });
-          }
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        setIsAuthed(false);
-        if (location.pathname !== "/login") {
-          navigate("/login", { replace: true });
-        }
-      } finally {
-        setIsChecking(false);
-      }
-    };
+  //       if (isAuthenticated()) {
+  //         setIsAuthed(true);
+  //         setIsChecking(false);
+  //         return;
+  //       }
+  //       const refreshed = await refreshTokenIfNeeded();
+  //       if (refreshed) {
+  //         setIsAuthed(true);
+  //       } else {
+  //         setIsAuthed(false);
+  //         if (location.pathname !== "/login") {
+  //           navigate("/login", { replace: true });
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Auth check failed:", error);
+  //       setIsAuthed(false);
+  //       if (location.pathname !== "/login") {
+  //         navigate("/login", { replace: true });
+  //       }
+  //     } finally {
+  //       setIsChecking(false);
+  //     }
+  //   };
 
-    checkAuth();
-  }, [navigate, location.pathname]);
+  //   checkAuth();
+  // }, [navigate, location.pathname]);
 
-  if (isChecking) {
-    return (
-      <Box className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang kiểm tra đăng nhập...</p>
-        </div>
-      </Box>
-    );
-  }
+  // if (isChecking) {
+  //   return (
+  //     <Box className="flex items-center justify-center min-h-screen">
+  //       <div className="text-center">
+  //         <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+  //         <p className="text-gray-600">Đang kiểm tra đăng nhập...</p>
+  //       </div>
+  //     </Box>
+  //   );
+  // }
 
-  return isAuthed ||
-    location.pathname === "/login" ||
-    location.pathname === "/building-selector"
-    ? children
-    : null;
+  // return isAuthed ||
+  //   location.pathname === "/login" ||
+  //   location.pathname === "/building-selector"
+  //   ? children
+  //   : null;
+  return children;
 };
 
 class ErrorBoundary extends React.Component {
