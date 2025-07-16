@@ -1,24 +1,16 @@
-// src/main.jsx
-// React core
 import React from "react";
 import { createRoot } from "react-dom/client";
-
-// ZaUI stylesheet
 import "zmp-ui/zaui.css";
-
-// Tailwind stylesheet
 import "./css/tailwind.scss";
-
-// Your stylesheet
 import "./css/app.scss";
-
-// Expose app configuration
 import appConfig from "../app-config.json";
+
 if (!window.APP_CONFIG) {
   window.APP_CONFIG = appConfig;
 }
 
-import Layout from "./components/Layout/Layout";
+import Layout from "./layout/Layout";
+import Routes from "./routes/index.jsx";
 import { App as ZMPApp, ZMPRouter } from "zmp-ui";
 import { getSystemInfo } from "zmp-sdk";
 
@@ -28,8 +20,10 @@ root.render(
   <React.StrictMode>
     <ZMPApp theme={getSystemInfo().zaloTheme}>
       <ZMPRouter>
-        <Layout />
-      </ZMPRouter>         
+        <Layout>
+          <Routes />
+        </Layout>
+      </ZMPRouter>
     </ZMPApp>
   </React.StrictMode>
 );

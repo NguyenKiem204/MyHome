@@ -16,8 +16,8 @@ import {
 } from "lucide-react";
 import { getUserInfo } from "zmp-sdk/apis";
 import { useNavigate } from "zmp-ui";
-import { clearTokens } from "../utils/auth";
-import api from "../utils/api";
+import { clearTokens } from "../services/auth";
+import api from "../services/api";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -42,25 +42,25 @@ const ProfilePage = () => {
   const fetchUserInfo = async () => {
     try {
       setUserDataLoading(true);
-      
+
       const userInfoResponse = await getUserInfo({});
-      
+
       if (userInfoResponse.userInfo) {
         const { id, name, avatar } = userInfoResponse.userInfo;
-        
+
         const zaloInfo = {
           id: id,
           name: name || "Người dùng",
           avatar: avatar || null,
         };
-        
+
         setZaloUserInfo(zaloInfo);
-        
-        setProfileData(prevData => ({
+
+        setProfileData((prevData) => ({
           ...prevData,
           name: zaloInfo.name,
         }));
-        
+
         console.log("Zalo user info loaded:", zaloInfo);
       }
     } catch (error) {
@@ -81,15 +81,18 @@ const ProfilePage = () => {
     setLoggingOut(true);
     try {
       try {
-        await api.post('/auth/logout', {});
+        await api.post("/auth/logout", {});
         console.log("Logout API call successful");
       } catch (apiError) {
-        console.warn("Logout API call failed, but continuing with local logout:", apiError);
+        console.warn(
+          "Logout API call failed, but continuing with local logout:",
+          apiError
+        );
       }
       clearTokens();
-      
+
       navigate("/building-selector", { replace: true });
-      
+
       console.log("Logout successful, redirected to building selector");
     } catch (error) {
       console.error("Logout error:", error);
@@ -108,7 +111,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     fetchUserInfo();
-    
+
     return () => avatar && URL.revokeObjectURL(avatar.preview);
   }, []);
 
@@ -140,7 +143,7 @@ const ProfilePage = () => {
       path: "/profile/security",
       action: () => {
         console.log("Navigate to security page");
-      }
+      },
     },
     {
       id: "payment",
@@ -149,7 +152,7 @@ const ProfilePage = () => {
       path: "/profile/payment",
       action: () => {
         console.log("Navigate to payment page");
-      }
+      },
     },
     {
       id: "history",
@@ -158,14 +161,14 @@ const ProfilePage = () => {
       path: "/profile/history",
       action: () => {
         console.log("Navigate to history page");
-      }
+      },
     },
     {
       id: "logout",
       title: "Đăng xuất",
       icon: <LogOut size={20} />,
       color: "#EF4444",
-      action: handleLogoutClick
+      action: handleLogoutClick,
     },
   ];
 
@@ -189,9 +192,9 @@ const ProfilePage = () => {
             onClick={refreshUserInfo}
             disabled={refreshing}
           >
-            <RefreshCw 
-              size={16} 
-              className={`text-gray-600 ${refreshing ? 'animate-spin' : ''}`} 
+            <RefreshCw
+              size={16}
+              className={`text-gray-600 ${refreshing ? "animate-spin" : ""}`}
             />
           </Button>
         </Box>
@@ -359,10 +362,11 @@ const ProfilePage = () => {
           {profileMenuItems.map((item, index) => (
             <Box
               key={item.id}
-              className={`flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 ${index !== profileMenuItems.length - 1
+              className={`flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 ${
+                index !== profileMenuItems.length - 1
                   ? "border-b border-gray-100"
                   : ""
-                }`}
+              }`}
               onClick={item.action}
             >
               <Box className="flex items-center gap-3">
@@ -370,8 +374,9 @@ const ProfilePage = () => {
                   {item.icon}
                 </Box>
                 <Text
-                  className={`font-medium ${item.color ? "text-red-500" : "text-gray-900"
-                    }`}
+                  className={`font-medium ${
+                    item.color ? "text-red-500" : "text-gray-900"
+                  }`}
                 >
                   {item.title}
                 </Text>
@@ -387,16 +392,17 @@ const ProfilePage = () => {
       {/* Edit Modal */}
       <Modal
         visible={showEditModal}
-        title={`Chỉnh sửa ${editField === "name"
+        title={`Chỉnh sửa ${
+          editField === "name"
             ? "tên"
             : editField === "email"
-              ? "email"
-              : editField === "phone"
-                ? "số điện thoại"
-                : editField === "address"
-                  ? "địa chỉ"
-                  : "ngày sinh"
-          }`}
+            ? "email"
+            : editField === "phone"
+            ? "số điện thoại"
+            : editField === "address"
+            ? "địa chỉ"
+            : "ngày sinh"
+        }`}
         onClose={() => setShowEditModal(false)}
         actions={[
           {
@@ -412,34 +418,36 @@ const ProfilePage = () => {
       >
         <Box className="p-4">
           <Input
-            label={`Nhập ${editField === "name"
+            label={`Nhập ${
+              editField === "name"
                 ? "tên"
                 : editField === "email"
-                  ? "email"
-                  : editField === "phone"
-                    ? "số điện thoại"
-                    : editField === "address"
-                      ? "địa chỉ"
-                      : "ngày sinh"
-              } mới`}
+                ? "email"
+                : editField === "phone"
+                ? "số điện thoại"
+                : editField === "address"
+                ? "địa chỉ"
+                : "ngày sinh"
+            } mới`}
             type={
               editField === "email"
                 ? "email"
                 : editField === "phone"
-                  ? "tel"
-                  : editField === "birthdate"
-                    ? "date"
-                    : "text"
+                ? "tel"
+                : editField === "birthdate"
+                ? "date"
+                : "text"
             }
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             className="w-full"
-            placeholder={editField === "name" && zaloUserInfo?.name ? 
-              `Tên hiện tại từ Zalo: ${zaloUserInfo.name}` : 
-              undefined
+            placeholder={
+              editField === "name" && zaloUserInfo?.name
+                ? `Tên hiện tại từ Zalo: ${zaloUserInfo.name}`
+                : undefined
             }
           />
-          
+
           {editField === "name" && zaloUserInfo?.name && (
             <Text className="text-xs text-gray-500 mt-2">
               💡 Tên này sẽ ghi đè tên từ Zalo trong ứng dụng
@@ -482,7 +490,7 @@ const ProfilePage = () => {
               </Text>
             </Box>
           </Box>
-          
+
           {loggingOut && (
             <Box className="flex items-center justify-center mt-4">
               <div className="w-5 h-5 border-2 border-red-200 border-t-red-600 rounded-full animate-spin mr-2"></div>

@@ -18,7 +18,7 @@ import {
   Package,
   Truck,
 } from "lucide-react";
-import api from "../utils/api";
+import api from "../services/api";
 
 const BuildingServicesPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -338,13 +338,14 @@ const BuildingServicesPage = () => {
               {/* Action Button */}
               <Button
                 fullWidth
-                className={`mt-4 ${currentService.isRegistered
+                className={`mt-4 ${
+                  currentService.isRegistered
                     ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
                     : getServiceColor(currentService.category).replace(
-                      "#",
-                      "bg-"
-                    ) + " text-white"
-                  }`}
+                        "#",
+                        "bg-"
+                      ) + " text-white"
+                }`}
                 onClick={() => {
                   if (currentService.isRegistered) {
                     handleCancelService(currentService);
@@ -394,18 +395,22 @@ const BuildingServicesPage = () => {
             )}
             <Text className="text-sm text-gray-700">
               {currentService.isRegistered
-                ? `Bạn có chắc chắn muốn hủy đăng ký dịch vụ "${currentService.name
-                }"?${!currentService.price?.includes("Miễn phí") &&
-                  !currentService.price?.includes("Giá thị trường")
-                  ? " Lưu ý: Phí đã thanh toán sẽ không được hoàn lại."
-                  : ""
-                }`
-                : `Bạn có chắc chắn muốn đăng ký dịch vụ "${currentService.name
-                }"?${!currentService.price?.includes("Miễn phí") &&
-                  !currentService.price?.includes("Giá thị trường")
-                  ? ` Chi phí: ${currentService.price}.`
-                  : ""
-                }`}
+                ? `Bạn có chắc chắn muốn hủy đăng ký dịch vụ "${
+                    currentService.name
+                  }"?${
+                    !currentService.price?.includes("Miễn phí") &&
+                    !currentService.price?.includes("Giá thị trường")
+                      ? " Lưu ý: Phí đã thanh toán sẽ không được hoàn lại."
+                      : ""
+                  }`
+                : `Bạn có chắc chắn muốn đăng ký dịch vụ "${
+                    currentService.name
+                  }"?${
+                    !currentService.price?.includes("Miễn phí") &&
+                    !currentService.price?.includes("Giá thị trường")
+                      ? ` Chi phí: ${currentService.price}.`
+                      : ""
+                  }`}
             </Text>
           </Box>
         )}

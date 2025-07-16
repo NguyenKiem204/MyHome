@@ -1,13 +1,15 @@
-import axios from 'axios';
-import { clearTokens, setAccessToken } from './auth';
+import axios from "axios";
+import authManager, { clearTokens, setAccessToken } from "../services/auth";
+import { REFRESH_URL } from "../constants/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const api = axios.create({
-  baseURL: 'https://harmless-right-chipmunk.ngrok-free.app/api',
-  withCredentials: true,
+  baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true'
-  }
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 let isRefreshing = false;
@@ -26,11 +28,10 @@ const processQueue = (error, token = null) => {
 
 api.interceptors.request.use(
   async (config) => {
-    const authManager = (await import('./auth')).default;
-    const accessToken = authManager.getAccessToken();
-
-    if (accessToken && !authManager.isTokenExpired()) { 
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    const token = authManager.getAccessToken();
+    console.log("token", token);
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
@@ -46,7 +47,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/api/auth/refresh') {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== REFRESH_URL
+    ) {
       originalRequest._retry = true;
 
       if (isRefreshing) {
@@ -54,7 +59,7 @@ api.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            originalRequest.headers["Authorization"] = "Bearer " + token;
             return api(originalRequest);
           })
           .catch((err) => {
@@ -65,36 +70,38 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const authManager = (await import('./auth')).default;
-        const refreshResponse = await axios.post('https://harmless-right-chipmunk.ngrok-free.app/api/auth/refresh', {}, {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': 'true'
+        const refreshResponse = await axios.post(
+          `${API_BASE_URL}${REFRESH_URL}`,
+          {},
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
           }
-        });
+        );
 
         if (refreshResponse.data.success) {
           const { accessToken, expiresIn } = refreshResponse.data.data;
-          
-          authManager.setAccessToken(accessToken, expiresIn);
-          
+
+          setAccessToken(accessToken, expiresIn);
+
           processQueue(null, accessToken);
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return api(originalRequest);
         } else {
           clearTokens();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
           }
           return Promise.reject(error);
         }
       } catch (refreshError) {
-        console.error('Refresh token failed:', refreshError);
+        console.error("Refresh token failed:", refreshError);
         clearTokens();
         processQueue(refreshError);
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
         }
         return Promise.reject(refreshError);
       } finally {

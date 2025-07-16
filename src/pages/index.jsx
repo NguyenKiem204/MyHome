@@ -9,7 +9,7 @@ import {
   Settings,
   Clock,
 } from "lucide-react";
-import api from "../utils/api";
+import api from "../services/api";
 import { useNavigate } from "zmp-ui";
 
 // Custom hook for fetching user data
@@ -22,10 +22,10 @@ const useUserData = () => {
     const fetchUserData = async () => {
       try {
         const response = await api.get("/auth/me");
-        if (response.data.success) {
-          setUserData(response.data.data);
+        if (response.data.success && response.data.resident) {
+          setUserData(response.data.resident);
         } else {
-          setError(response.data.message);
+          setError(response.data.message || "Không lấy được thông tin cư dân");
         }
       } catch (err) {
         setError(err.message);

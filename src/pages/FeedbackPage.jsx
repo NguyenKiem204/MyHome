@@ -13,7 +13,7 @@ import {
   Sheet,
 } from "zmp-ui";
 import { Send, Camera, X, CheckCircle, Clock, AlertCircle } from "lucide-react";
-import api from "../utils/api";
+import api from "../services/api";
 
 const FeedbackPage = () => {
   const [activeTab, setActiveTab] = useState("new");
