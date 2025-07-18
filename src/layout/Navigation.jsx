@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { BottomNavigation } from "zmp-ui";
-import { Home, User, MessageSquare, FileText, Grid } from "lucide-react";
+import { Home, User, MessageSquare, Bell, Grid } from "lucide-react";
 import { useNavigate, useLocation } from "zmp-ui";
 
-const Navigation = () => {
+const Navigation = ({ onNotificationClick, notificationCount }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -17,8 +17,6 @@ const Navigation = () => {
       newActiveTab = "profile";
     } else if (currentPath.startsWith("/feedback")) {
       newActiveTab = "feedback";
-    } else if (currentPath.startsWith("/blogs")) {
-      newActiveTab = "blogs";
     } else if (currentPath.startsWith("/services")) {
       newActiveTab = "services";
     } else if (currentPath === "/") {
@@ -41,22 +39,34 @@ const Navigation = () => {
       case "feedback":
         navigate("/feedback");
         break;
-      case "blogs":
-        navigate("/blogs");
-        break;
       case "services":
         navigate("/services");
+        break;
+      case "notifications":
+        if (onNotificationClick) onNotificationClick();
         break;
       default:
         navigate("/");
     }
   };
 
+  // Badge cho số lượng thông báo
+  const renderBellWithBadge = () => (
+    <span className="relative inline-block">
+      <Bell size={24} />
+      {notificationCount > 0 && (
+        <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 min-w-[20px] h-5 flex items-center justify-center border border-white">
+          {notificationCount > 99 ? "99+" : notificationCount}
+        </span>
+      )}
+    </span>
+  );
+
   return (
     <BottomNavigation
       fixed
       activeKey={activeTab}
-      onChange={(key) => handleNavChange(key)}
+      onChange={handleNavChange}
       style={{ zIndex: 1000 }}
     >
       <BottomNavigation.Item
@@ -75,14 +85,14 @@ const Navigation = () => {
         icon={<MessageSquare size={24} />}
       />
       <BottomNavigation.Item
-        key="blogs"
-        label="Blog"
-        icon={<FileText size={24} />}
-      />
-      <BottomNavigation.Item
         key="services"
         label="Tiện ích"
         icon={<Grid size={24} />}
+      />
+      <BottomNavigation.Item
+        key="notifications"
+        label="Thông báo"
+        icon={renderBellWithBadge()}
       />
     </BottomNavigation>
   );

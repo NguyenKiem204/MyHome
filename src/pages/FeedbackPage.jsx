@@ -1,5 +1,5 @@
 // src/pages/FeedbackPage.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Page,
@@ -14,6 +14,7 @@ import {
 } from "zmp-ui";
 import { Send, Camera, X, CheckCircle, Clock, AlertCircle } from "lucide-react";
 import api from "../services/api";
+import useAuthStore from "../store/useAuthStore";
 
 const FeedbackPage = () => {
   const [activeTab, setActiveTab] = useState("new");
@@ -21,29 +22,32 @@ const FeedbackPage = () => {
   const [content, setContent] = useState("");
   const [feedbackType, setFeedbackType] = useState("Suggest");
   const [showSuccessSheet, setShowSuccessSheet] = useState(false);
+  const [feedbackHistory, setFeedbackHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
-  const BASE_URL =
-    "https://usable-dinosaurs-b795619e4a.strapiapp.com/api/feedbacks";
+  const user = useAuthStore((state) => state.user);
+
+  const BASE_URL = "/feedbacks";
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch(BASE_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const data = {
+        data: {
           Type: feedbackType,
           Title: subject,
           Content: content,
-          PhoneNumber: "0987654321", // Hoặc lấy từ state nếu có input
-        }),
-      });
-      if (response.ok) {
+          Resident: user?.id,
+        },
+      };
+      const response = await api.post(BASE_URL, data);
+      if (response.status === 200 || response.status === 201) {
         setSubject("");
         setContent("");
         setFeedbackType("Suggest");
         setShowSuccessSheet(true);
+        fetchFeedbackHistory();
       } else {
         alert("Gửi phản hồi thất bại. Vui lòng thử lại!");
       }
@@ -53,39 +57,41 @@ const FeedbackPage = () => {
     }
   };
 
-  const feedbackHistory = [
-    {
-      id: 1,
-      subject: "Đề xuất thêm tính năng thông báo",
-      date: "15/05/2025",
-      status: "completed",
-      type: "suggestion",
-    },
-    {
-      id: 2,
-      subject: "Vấn đề về hiển thị giao diện",
-      date: "10/05/2025",
-      status: "processing",
-      type: "problem",
-    },
-    {
-      id: 3,
-      subject: "Câu hỏi về chính sách bảo mật",
-      date: "01/05/2025",
-      status: "completed",
-      type: "question",
-    },
-  ];
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle size={16} className="text-green-500" />;
-      case "processing":
-        return <Clock size={16} className="text-yellow-500" />;
-      default:
-        return <AlertCircle size={16} className="text-gray-500" />;
+  // Lấy lịch sử feedback từ API
+  const fetchFeedbackHistory = async () => {
+    if (!user?.id) return;
+    setLoadingHistory(true);
+    try {
+      const res = await api.get(`/feedbacks?Resident=${user.id}`);
+      const list = res.data?.data || res.data || [];
+      setFeedbackHistory(list);
+    } catch (err) {
+      setFeedbackHistory([]);
+    } finally {
+      setLoadingHistory(false);
     }
+  };
+
+  // Tự động load khi vào tab history
+  useEffect(() => {
+    if (activeTab === "history") {
+      fetchFeedbackHistory();
+    }
+    // eslint-disable-next-line
+  }, [activeTab, user?.id]);
+
+  // Sửa getStatusIcon để dùng StatusFeedback
+  const getStatusIcon = (status, size = 16) => {
+    if (!status || status === "Chưa xử lý" || status === null) {
+      return <AlertCircle size={size} className="text-gray-400" />;
+    }
+    if (status === "Đang xử lý") {
+      return <Clock size={size} className="text-yellow-500" />;
+    }
+    if (status === "Đã xử lý" || status === "completed") {
+      return <CheckCircle size={size} className="text-green-500" />;
+    }
+    return <AlertCircle size={size} className="text-gray-400" />;
   };
 
   return (
@@ -159,50 +165,63 @@ const FeedbackPage = () => {
 
         <Tabs.Tab key="history" label="Lịch sử phản ánh">
           <Box className="p-4">
-            {feedbackHistory.length > 0 ? (
-              <List className="space-y-2">
+            {loadingHistory ? (
+              <Box className="flex flex-col items-center justify-center py-10">
+                <Text className="text-gray-500">Đang tải...</Text>
+              </Box>
+            ) : feedbackHistory.length > 0 ? (
+              <div className="space-y-4">
                 {feedbackHistory.map((item) => (
-                  <List.Item
+                  <div
                     key={item.id}
-                    className="bg-white rounded-lg shadow-sm"
-                    title={
-                      <Box className="flex justify-between items-center w-full">
-                        <Text className="font-medium text-gray-800 truncate">
-                          {item.subject}
+                    className="bg-white rounded-2xl shadow-md p-4 flex items-center gap-4 transition hover:shadow-lg cursor-pointer border border-gray-100"
+                    onClick={() => {
+                      setSelectedFeedback(item);
+                      setShowDetail(true);
+                    }}
+                  >
+                    {/* Icon trạng thái lớn */}
+                    <div className="flex-shrink-0">
+                      {getStatusIcon(item.StatusFeedback, 32)}
+                    </div>
+                    {/* Nội dung feedback */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <Text className="font-semibold text-gray-900 truncate text-base">
+                          {item.Title || item.title}
                         </Text>
-                        <div className="ml-2 flex-shrink-0">
-                          {getStatusIcon(item.status)}
+                        <span
+                          className={
+                            !item.StatusFeedback ||
+                            item.StatusFeedback === "Chưa xử lý" ||
+                            item.StatusFeedback === null
+                              ? "text-gray-400 font-medium"
+                              : item.StatusFeedback === "Đang xử lý"
+                              ? "text-yellow-500 font-medium"
+                              : "text-green-500 font-medium"
+                          }
+                        >
+                          {!item.StatusFeedback ||
+                          item.StatusFeedback === "Chưa xử lý" ||
+                          item.StatusFeedback === null
+                            ? "Chờ xử lý"
+                            : item.StatusFeedback}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-500 mb-1">
+                        {item.createdAt
+                          ? new Date(item.createdAt).toLocaleDateString()
+                          : ""}
+                      </div>
+                      {item.Content || item.content ? (
+                        <div className="text-gray-700 text-sm line-clamp-2">
+                          {item.Content || item.content}
                         </div>
-                      </Box>
-                    }
-                    description={
-                      <Box className="mt-1">
-                        <Text className="text-sm text-gray-600">
-                          {item.date} -{" "}
-                          <span
-                            className={
-                              item.status === "completed"
-                                ? "text-green-500"
-                                : item.status === "processing"
-                                ? "text-yellow-500"
-                                : "text-gray-500"
-                            }
-                          >
-                            {item.status === "completed"
-                              ? "Đã xử lý"
-                              : item.status === "processing"
-                              ? "Đang xử lý"
-                              : "Chờ xử lý"}
-                          </span>
-                        </Text>
-                      </Box>
-                    }
-                    onClick={() =>
-                      (window.location.href = `/feedback/${item.id}`)
-                    }
-                  />
+                      ) : null}
+                    </div>
+                  </div>
                 ))}
-              </List>
+              </div>
             ) : (
               <Box className="flex flex-col items-center justify-center py-10">
                 <Text className="text-gray-500">Bạn chưa có phản ánh nào</Text>
@@ -211,6 +230,38 @@ const FeedbackPage = () => {
           </Box>
         </Tabs.Tab>
       </Tabs>
+
+      {/* Sheet chi tiết feedback */}
+      <Sheet
+        visible={showDetail}
+        onClose={() => setShowDetail(false)}
+        autoHeight
+        mask
+        handler
+        swipeToClose
+        className="zmp-sheet-custom"
+      >
+        {selectedFeedback && (
+          <Box className="p-6 flex flex-col gap-2">
+            <Text className="text-xl font-bold mb-2 text-gray-800">
+              {selectedFeedback.Title}
+            </Text>
+            <Text className="text-gray-600 mb-2">
+              Ngày gửi:{" "}
+              {selectedFeedback.createdAt
+                ? new Date(selectedFeedback.createdAt).toLocaleString()
+                : ""}
+            </Text>
+            <Text className="mb-2">
+              <b>Trạng thái:</b>{" "}
+              {selectedFeedback.StatusFeedback || "Chờ xử lý"}
+            </Text>
+            <Text className="mb-2">
+              <b>Nội dung:</b> {selectedFeedback.Content}
+            </Text>
+          </Box>
+        )}
+      </Sheet>
 
       {/* Sheet thông báo thành công */}
       <Sheet

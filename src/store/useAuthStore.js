@@ -22,6 +22,11 @@ const useAuthStore = create(
                 isAuthenticated: true,
                 isLoading: false,
               });
+              // Lưu email vào localStorage
+              localStorage.setItem(
+                "userEmail",
+                userResponse.data.resident.email || ""
+              );
             } else {
               set({
                 user: {
@@ -31,6 +36,7 @@ const useAuthStore = create(
                 isAuthenticated: true,
                 isLoading: false,
               });
+              localStorage.setItem("userEmail", credentials.email || "");
             }
           } else {
             set({ isLoading: false });
@@ -45,6 +51,7 @@ const useAuthStore = create(
       logout: () => {
         clearTokens();
         localStorage.removeItem("auth-storage");
+        localStorage.removeItem("userEmail");
         set({
           user: null,
           isAuthenticated: false,
@@ -57,8 +64,13 @@ const useAuthStore = create(
             const response = await api.get("/auth/me");
             if (response.data.success && response.data.resident) {
               set({ user: response.data.resident });
+              localStorage.setItem(
+                "userEmail",
+                response.data.resident.email || ""
+              );
             } else {
               clearTokens();
+              localStorage.removeItem("userEmail");
               set({
                 user: null,
                 isAuthenticated: false,
@@ -66,6 +78,7 @@ const useAuthStore = create(
             }
           } catch {
             clearTokens();
+            localStorage.removeItem("userEmail");
             set({
               user: null,
               isAuthenticated: false,
@@ -83,8 +96,13 @@ const useAuthStore = create(
             const response = await api.get("/auth/me");
             if (response.data.success && response.data.resident) {
               set({ user: response.data.resident });
+              localStorage.setItem(
+                "userEmail",
+                response.data.resident.email || ""
+              );
             } else {
               clearTokens();
+              localStorage.removeItem("userEmail");
               set({
                 user: null,
                 isAuthenticated: false,
@@ -92,9 +110,11 @@ const useAuthStore = create(
             }
           } else {
             set({ user: null });
+            localStorage.removeItem("userEmail");
           }
         } catch {
           clearTokens();
+          localStorage.removeItem("userEmail");
           set({
             user: null,
             isAuthenticated: false,
