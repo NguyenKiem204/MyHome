@@ -29,6 +29,7 @@ const BuildingServicesPage = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [actionType, setActionType] = useState(null); // 'register' hoặc 'cancel'
 
   // Map category strings to Lucide icons
   const categoryIcons = {
@@ -65,10 +66,10 @@ const BuildingServicesPage = () => {
     setError(null);
     try {
       const response = await api.get("/building-services");
-      if (response.data.success) {
+      if (response.data && response.data.data) {
         setServices(response.data.data);
       } else {
-        setError(response.data.message || "Failed to fetch services.");
+        setError("Không thể tải danh sách dịch vụ.");
       }
     } catch (err) {
       console.error("Error fetching services:", err);
@@ -84,11 +85,14 @@ const BuildingServicesPage = () => {
 
   const handleRegisterService = (service) => {
     setCurrentService(service);
+    setActionType('register');
+    
+    // Nếu là dịch vụ miễn phí hoặc giá thị trường, đăng ký luôn
     if (
       service.price?.includes("Miễn phí") ||
       service.price?.includes("Giá thị trường")
     ) {
-      handleConfirmRegister();
+      handleConfirmAction();
     } else {
       setShowConfirmation(true);
     }
@@ -96,27 +100,47 @@ const BuildingServicesPage = () => {
 
   const handleCancelService = (service) => {
     setCurrentService(service);
+    setActionType('cancel');
     setShowConfirmation(true);
   };
 
-  const handleConfirmRegister = async () => {
-    if (!currentService) return;
+  const handleConfirmAction = async () => {
+    if (!currentService || !actionType) return;
 
     setShowConfirmation(false);
     setLoading(true);
     setError(null);
 
-    const endpoint = currentService.isRegistered
+    const endpoint = actionType === 'cancel'
       ? `/building-services/${currentService.id}/cancel`
       : `/building-services/${currentService.id}/register`;
 
     try {
       const response = await api.post(endpoint);
-      if (response.data.success) {
+      
+      // Kiểm tra response status thay vì response.data.success
+      if (response.status === 200 || response.status === 201) {
+        // Cập nhật trạng thái service trong state local
+        setServices(prevServices => 
+          prevServices.map(service => 
+            service.id === currentService.id 
+              ? { 
+                  ...service, 
+                  isRegistered: actionType === 'register' ? true : false 
+                }
+              : service
+          )
+        );
+        
+        // Cập nhật currentService để hiển thị đúng trong success modal
+        setCurrentService(prev => ({
+          ...prev,
+          isRegistered: actionType === 'register' ? true : false
+        }));
+        
         setShowSuccess(true);
-        await fetchServices();
       } else {
-        setError(response.data.message || "Thao tác thất bại.");
+        setError("Thao tác thất bại.");
       }
     } catch (err) {
       console.error("Error during service action:", err);
@@ -202,9 +226,8 @@ const BuildingServicesPage = () => {
             >
               <Box className="p-4 flex items-start space-x-3">
                 <Box
-                  className={`${getServiceColor(
-                    service.category
-                  )} p-3 rounded-lg flex-shrink-0 text-white`}
+                  className="p-3 rounded-lg flex-shrink-0 text-white"
+                  style={{ backgroundColor: getServiceColor(service.category) }}
                 >
                   {getServiceIcon(service.category)}
                 </Box>
@@ -274,10 +297,8 @@ const BuildingServicesPage = () => {
           <Box className="pb-8">
             {/* Header */}
             <Box
-              className={`${getServiceColor(currentService.category).replace(
-                "#",
-                "bg-"
-              )} p-6 text-white`}
+              className="p-6 text-white"
+              style={{ backgroundColor: getServiceColor(currentService.category) }}
             >
               <Box className="flex items-center space-x-4">
                 <Box className="p-3 bg-white bg-opacity-20 rounded-lg">
@@ -325,9 +346,8 @@ const BuildingServicesPage = () => {
                     <Box key={index} className="flex items-start space-x-2">
                       <CheckCircle
                         size={16}
-                        className={`${getServiceColor(
-                          currentService.category
-                        ).replace("#", "text-")} mt-0.5 flex-shrink-0`}
+                        className="mt-0.5 flex-shrink-0"
+                        style={{ color: getServiceColor(currentService.category) }}
                       />
                       <Text className="text-sm text-gray-700">{feature}</Text>
                     </Box>
@@ -341,11 +361,13 @@ const BuildingServicesPage = () => {
                 className={`mt-4 ${
                   currentService.isRegistered
                     ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                    : getServiceColor(currentService.category).replace(
-                        "#",
-                        "bg-"
-                      ) + " text-white"
+                    : "text-white"
                 }`}
+                style={
+                  !currentService.isRegistered
+                    ? { backgroundColor: getServiceColor(currentService.category) }
+                    : {}
+                }
                 onClick={() => {
                   if (currentService.isRegistered) {
                     handleCancelService(currentService);
@@ -366,7 +388,7 @@ const BuildingServicesPage = () => {
       <Modal
         visible={showConfirmation}
         title={
-          currentService?.isRegistered
+          actionType === 'cancel'
             ? "Xác nhận hủy đăng ký"
             : "Xác nhận đăng ký"
         }
@@ -378,14 +400,14 @@ const BuildingServicesPage = () => {
           },
           {
             text: "Xác nhận",
-            onClick: handleConfirmRegister,
+            onClick: handleConfirmAction,
             primary: true,
           },
         ]}
       >
         {currentService && (
           <Box className="flex items-start space-x-3 p-4">
-            {currentService.isRegistered ? (
+            {actionType === 'cancel' ? (
               <AlertTriangle
                 size={24}
                 className="text-yellow-500 flex-shrink-0"
@@ -394,7 +416,7 @@ const BuildingServicesPage = () => {
               <Info size={24} className="text-blue-500 flex-shrink-0" />
             )}
             <Text className="text-sm text-gray-700">
-              {currentService.isRegistered
+              {actionType === 'cancel'
                 ? `Bạn có chắc chắn muốn hủy đăng ký dịch vụ "${
                     currentService.name
                   }"?${
@@ -425,29 +447,25 @@ const BuildingServicesPage = () => {
         {currentService && (
           <Box className="p-6 flex flex-col items-center text-center">
             <Box
-              className={`${getServiceColor(currentService.category).replace(
-                "#",
-                "bg-"
-              )} p-4 rounded-full mb-4`}
+              className="p-4 rounded-full mb-4"
+              style={{ backgroundColor: getServiceColor(currentService.category) }}
             >
               <CheckCircle size={40} className="text-white" />
             </Box>
             <Text className="text-xl font-bold text-gray-800 mb-2">
-              {!currentService.isRegistered
+              {actionType === 'register'
                 ? "Đăng ký thành công!"
                 : "Hủy đăng ký thành công!"}
             </Text>
             <Text className="text-gray-600 mb-6">
-              {!currentService.isRegistered
+              {actionType === 'register'
                 ? `Bạn đã đăng ký thành công dịch vụ "${currentService.name}". Vui lòng liên hệ quản lý tòa nhà để biết thêm chi tiết.`
                 : `Bạn đã hủy đăng ký dịch vụ "${currentService.name}". Cảm ơn bạn đã sử dụng dịch vụ.`}
             </Text>
             <Button
               fullWidth
-              className={`${getServiceColor(currentService.category).replace(
-                "#",
-                "bg-"
-              )} text-white`}
+              className="text-white"
+              style={{ backgroundColor: getServiceColor(currentService.category) }}
               onClick={() => setShowSuccess(false)}
             >
               Đóng

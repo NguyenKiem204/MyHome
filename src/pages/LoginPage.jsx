@@ -13,8 +13,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [needPhone, setNeedPhone] = useState(false);
-  const [phone, setPhone] = useState("");
   const [accessToken, setAccessTokenState] = useState("");
   const [verifyingPhone, setVerifyingPhone] = useState(false);
 

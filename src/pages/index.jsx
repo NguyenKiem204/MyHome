@@ -98,6 +98,8 @@ const useNewsData = () => {
 const UserInfo = React.lazy(() => import("../components/UserInfo"));
 const FeatureCards = React.lazy(() => import("../components/FeatureCards"));
 const NewsList = React.lazy(() => import("../components/NewsList"));
+const BlogList = React.lazy(() => import("../components/BlogList"));
+const VoteSection = React.lazy(() => import("../components/VoteSection"));
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -125,14 +127,40 @@ const HomePage = () => {
           <FeatureCards navigate={navigate} />
         </Suspense>
 
-        <Suspense fallback={<NewsListSkeleton />}>
-          <NewsList
-            news={news}
-            error={newsError}
-            onRetry={refetchNews}
-            navigate={navigate}
-          />
-        </Suspense>
+        <Box className="mt-8">
+          <Box className="flex items-center justify-between mb-4">
+            <Box className="flex items-center">
+              <FileText className="mr-2 text-gray-700" size={20} />
+              <Text className="text-lg font-semibold text-gray-800">
+                Tin tức &amp; Blog
+              </Text>
+            </Box>
+            <Button
+              className="text-white-600"
+              size="small"
+              onClick={() => navigate("/blog")}
+            >
+              Xem tất cả
+            </Button>
+          </Box>
+          <Suspense fallback={<NewsListSkeleton />}>
+            <BlogList />
+          </Suspense>
+        </Box>
+
+        <Box className="mt-8">
+          <Box className="flex items-center justify-between mb-4">
+            <Box className="flex items-center">
+              <MessageSquare className="mr-2 text-gray-700" size={20} />
+              <Text className="text-lg font-semibold text-gray-800">
+                Bình chọn &amp; Khảo sát
+              </Text>
+            </Box>
+          </Box>
+          <Suspense fallback={<NewsListSkeleton />}>
+            <VoteSection />
+          </Suspense>
+        </Box>
       </Box>
     </Page>
   );
@@ -209,7 +237,7 @@ const FullPageSkeleton = () => (
           </Text>
         </Box>
         <FeatureCardsSkeleton />
-      </Box>
+      </Box>{" "}
       <Box className="mt-8">
         <Box className="flex items-center justify-between mb-4">
           <Box className="flex items-center">
@@ -220,6 +248,21 @@ const FullPageSkeleton = () => (
           </Box>
         </Box>
         <NewsListSkeleton />
+      </Box>
+      <Box className="mt-8">
+        <Box className="flex items-center justify-between mb-4">
+          <Box className="flex items-center">
+            <MessageSquare className="mr-2 text-gray-700" size={20} />
+            <Text className="text-lg font-semibold text-gray-800">
+              Bình chọn cộng đồng
+            </Text>
+          </Box>
+        </Box>
+        <Box className="animate-pulse space-y-4">
+          {[1, 2].map((i) => (
+            <Box key={i} className="bg-white rounded-xl p-4 h-48"></Box>
+          ))}
+        </Box>
       </Box>
     </Box>
   </Page>
