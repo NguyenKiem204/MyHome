@@ -106,9 +106,9 @@ const BlogDetailPage = () => {
               </span>
             </div>
           </div>
-          <div className="p-8">
+          <div className="p-8 mb-10">
             {blog.content ? (
-              <ReactMarkdown className="prose prose-lg max-w-none mb-10">
+              <ReactMarkdown className="prose prose-lg max-w-none ">
                 {blog.content}
               </ReactMarkdown>
             ) : (

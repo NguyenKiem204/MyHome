@@ -25,6 +25,7 @@ const BuildingServicesPage = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paymentLoading, setPaymentLoading] = useState(null);
   const [showServiceDetail, setShowServiceDetail] = useState(false);
   const [currentService, setCurrentService] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -149,12 +150,7 @@ const BuildingServicesPage = () => {
       return;
     }
 
-    // Check trực tiếp trong service_registrations
-    const userRegistration = service.service_registrations?.find(
-      (reg) => reg.resident?.id == user?.id && reg.statusRegister === "Đã đăng kí"
-    );
-
-    if (userRegistration) {
+    if (service.isRegistered && service.isRegistered.isActive) {
       openSnackbar({
         text: "Bạn đã đăng ký dịch vụ này rồi",
         type: "info",
@@ -175,12 +171,7 @@ const BuildingServicesPage = () => {
   };
 
   const handleCancelService = (service) => {
-    // Check trực tiếp trong service_registrations
-    const userRegistration = service.service_registrations?.find(
-      (reg) => reg.resident?.id == user?.id
-    );
-
-    if (!userRegistration || userRegistration.statusRegister === "Đã hủy") {
+    if (!service.canCancel) {
       openSnackbar({
         text: "Không thể hủy dịch vụ này",
         type: "warning",
@@ -203,7 +194,7 @@ const BuildingServicesPage = () => {
     }
 
     try {
-      setLoading(true);
+      setPaymentLoading(service.id);
       const response = await api.post("/service-registration/payment", {
         registrationId: service.isRegistered.id,
         appTransId: service.isRegistered.appTransId,
@@ -211,12 +202,12 @@ const BuildingServicesPage = () => {
 
       if (response.data?.payment_url) {
         window.location.href = response.data.payment_url;
+        return;
       }
     } catch (err) {
       console.error("Payment error:", err);
       setError("Có lỗi xảy ra khi xử lý thanh toán. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
+      setPaymentLoading(null);
     }
   };
 
@@ -266,15 +257,9 @@ const BuildingServicesPage = () => {
         case "all":
           return true;
         case "registered":
-          // Check trực tiếp trong service_registrations
-          return service.service_registrations?.some(
-            (reg) => reg.resident?.id == user?.id && reg.statusRegister === "Đã đăng kí"
-          );
+          return service.isRegistered && service.isRegistered.isActive;
         case "pending":
-          // Check trực tiếp trong service_registrations
-          return service.service_registrations?.some(
-            (reg) => reg.resident?.id == user?.id && reg.statusRegister === "Chờ thanh toán"
-          );
+          return service.isRegistered && service.isRegistered.isPending;
         case "free":
           return service.price === 0 || 
                  service.price?.toString().includes("Miễn phí");
@@ -287,12 +272,7 @@ const BuildingServicesPage = () => {
   const filteredServices = getFilteredServices();
 
   const renderRegistrationStatus = (service) => {
-    // Check trực tiếp trong service_registrations xem user có trong đó không
-    const userRegistration = service.service_registrations?.find(
-      (reg) => reg.resident?.id == user?.id
-    );
-
-    if (!userRegistration) {
+    if (!service.isRegistered) {
       return (
         <Button
           size="small"
@@ -307,9 +287,7 @@ const BuildingServicesPage = () => {
       );
     }
 
-    const status = userRegistration.statusRegister;
-    const isActive = status === "Đã đăng kí";
-    const isPending = status === "Chờ thanh toán";
+    const { status, isActive, isPending } = service.isRegistered;
     
     return (
       <Box className="flex items-center gap-2">
@@ -342,12 +320,13 @@ const BuildingServicesPage = () => {
             variant="text"
             size="small"
             className="text-blue-500 text-xs font-medium"
+            disabled={paymentLoading === service.id}
             onClick={(e) => {
               e.stopPropagation();
               handlePaymentService(service);
             }}
           >
-            Thanh toán
+            {paymentLoading === service.id ? "Đang xử lý..." : "Thanh toán"}
           </Button>
         )}
       </Box>

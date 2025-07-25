@@ -82,7 +82,7 @@ const BlogList = () => {
         <Box
           key={blog.id}
           className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-          onClick={() => navigate(`/blog/${blog.documentId}`)}
+          onClick={() => navigate(`/blog-detail/${blog.documentId}`)}
         >
           <div className="relative">
             <img
